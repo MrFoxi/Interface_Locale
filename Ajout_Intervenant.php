@@ -59,7 +59,7 @@
             <div class="head_box">
                 <div class="accueil">
                     <!--Lien peut etre à changer pour rediriger vers le menu-->
-                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;" src="images/maison.png" id="accueil" width="45px" height="45px"></a>
+                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;" src="images/burger.png" id="accueil" width="45px" height="45px"></a>
                 </div>
                 <div class="titre">
                     <h1>Ajouter un Intervenant</h1>
@@ -71,22 +71,23 @@
                         <label for="name">
                             <h2>Nom</h2>
                         </label>
-                        <input type="text" placeholder="Exemple : Caféine et corps humain." name="nom"
+                        <input type="text" placeholder="Ex : Durand" name="nom"
                             id="input_title" required>
                     </div>
                     <div id="title">
                         <label for="name">
-                            <h2>Prenom</h2>
+                            <h2>Prénom</h2>
                         </label>
-                        <input type="text" placeholder="Exemple : Caféine et corps humain." name="prenom"
+                        <input type="text" placeholder="Ex : Olivier" name="prenom"
                             id="input_title" required>
                     </div>
                 </div>
                 <div id="small_box">
-                    <h2>Ma photos</h2>
-                    <input type="file" id="fileupload" name="fileupload" accept=".png,.jpg,.jpeg"
-                        value="importer votre photo">
-                    <input id="submit" type="submit">
+                    <div id="title">
+                        <h2>Ma photo</h2>
+                        <input type="file" id="fileupload" name="fileupload" accept=".png,.jpg,.jpeg" value="importer votre photo">
+                    </div>
+                    <input id="submit" type="submit" class="enregistrer">
                 </div>
                 
             </div>

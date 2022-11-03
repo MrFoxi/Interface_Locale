@@ -24,7 +24,6 @@ html, body{
 }
 
 /*PAGE EDITEUR DE PRESENTATION*/
-
 body > #forms{
     display: flex;
     justify-content: center;
@@ -58,7 +57,6 @@ form{
                 -10px -5px 10px rgba(255, 255, 255 , 0.6);
 }
 #medium_box{
-    
     width: 60%;
     height: 100%;
 }
@@ -206,6 +204,7 @@ select > option{
     width: 100%;
     display: flex;
     align-items: center;
+    align-content: flex-start;
     justify-content: center;
     flex-wrap: wrap;
     padding-right: 4px;
@@ -372,10 +371,39 @@ center > h2 > a:hover, a:visited {
 }
 .check{
     position: absolute;
-    
 }
+.footer_box{
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
 
- 
+}
+.choix_session{
+    display: flex;
+    justify-content: flex-end;
+    width: 30%;
+    align-items: center;
+
+}
+#submit_session{
+    margin-top: 0px;
+    margin-left: 30px;
+    width: 150px;
+    min-height: 50px;
+    border: none;
+    border-radius: 5px;
+    background-color: inherit;
+    font-family: 'Raleway', sans-serif;
+    box-shadow: inset 0 0 0 0 rgba(var(--primaire), 0.4),
+                      10px 10px 10px rgba(0, 0, 0 , 0.1),
+                      -5px -2px 10px rgba(255, 255, 255 , 0.6);
+    transition: 0.3s ease-in-out;
+    font-weight: 700;
+}
+#submit_session:hover{
+    box-shadow: inset 200px 0 0 0 rgba(28, 199, 28, 0.7);
+    cursor: pointer;
+}
 /* width */
 ::-webkit-scrollbar {
     width: 10px;

@@ -24,14 +24,20 @@
                 
                 <ul id="presta_box">
                     <div id="medium_box">
-                            
-                            <a href="presentations.php"><center><H2 style="margin-top:12%;">PRESENTATION</H2></center></a><BR/>
-                            
-                            <a href="AjouteurDePresentations.php"><center><H2 style="margin-top:12%;">AJOUTER UNE PRESENTATION</H2></center></a><BR/>
-                            
-                            <a href="Ajout_Intervenant.php"><center><H2 style="margin-top:12%;">AJOUTER UN INTERVENANT</H2></center></a><BR/>
-                            
-                            <a href="Session.php"><center><H2 style="margin-top:12%;">AJOUTER UNE SESSION</H2></center></a>
+                            <div class="boite_à_liens">
+                                <button>
+                                    <a href="presentations.php" id="menu_lien">PRESENTATIONS</a>
+                                </button>
+                                <button>
+                                    <a href="AjouteurDePresentations.php" id="menu_lien">AJOUTER UNE PRESENTATION</a>
+                                </button>
+                                <button>
+                                    <a href="Ajout_Intervenant.php" id="menu_lien">AJOUTER UN INTERVENANT</a>
+                                </button>
+                                <button>
+                                    <a href="Session.php" id="menu_lien">AJOUTER UNE SESSION</a>
+                                </button>
+                            </div>
                             
                     </div>
                 </ul>

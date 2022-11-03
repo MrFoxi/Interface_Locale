@@ -50,14 +50,14 @@
         
         <div id="big_box_unlock">
             <div>
-                <input style="top: 35.8%;left: 34.8%" value="1" class="btn-modif" type="radio" name="cadenas" <?= $unchecked?>>
+                <input style="cursor: pointer;top: 35.8%;left: 34.8%" value="1" class="btn-modif" type="radio" name="cadenas" <?= $unchecked?>>
                 <img style="width: 200px;height:200px;position: fixed;top: 36%;left: 35%;" src="images/ouvrir.png"/>
             </div>
             <div>
-                <input style="top: 35.8%;right: 34.8%" value="0" class="btn-modif" type="radio" name="cadenas" <?= $checked?>>
+                <input style="cursor: pointer;top: 35.8%;right: 34.8%" value="0" class="btn-modif" type="radio" name="cadenas" <?= $checked?>>
                 <img style="width: 200px;height:200px;position: fixed;top: 36%;right: 35%;" src="images/fermer.png"/>
             </div>
-            <input value="Validez" id="btn-validez" type="submit">
+            <input value="Valider" id="btn-validez" type="submit">
         </div>
         </form>
     </div>

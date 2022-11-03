@@ -24,17 +24,19 @@ if(!empty($_POST)) {
         $req = $pdo->prepare('SELECT id FROM session WHERE id = ?;');
         $req->execute([$i]);
         $exists = $req->fetchColumn();
+        
         if($exists == false){
             $req = $pdo->prepare('INSERT INTO session (created_at) VALUES (?);');
             $req->execute([date("Y-m-d H:i:s")]);
-            if(file_exists("//serveur\partage\Session_$i")){
-                
+            if(file_exists("Session_$i")){
+    
             } else  {
-                mkdir("//serveur\partage\Session_$i");
+                mkdir("Session_$i");
             }
         }
         
     }
+    header("location: ./Presentations.php");
 }
 
 
@@ -46,7 +48,7 @@ if(!empty($_POST)) {
             <div class="head_box">
                 <div class="accueil">
                     <!--Lien peut etre à changer pour rediriger vers le menu-->
-                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;" src="images/maison.png" id="accueil" width="45px" height="45px"></a>
+                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;" src="images/burger.png" id="accueil" width="45px" height="45px"></a>
                 </div>
                 <div class="titre">
                     <h1>Session</h1>
@@ -64,9 +66,9 @@ if(!empty($_POST)) {
                         <table>
                             <thead>
                                 <tr>
-                                    <td>ID</td>
+                                    <td>N°</td>
                                     <td>TITRE</td>
-                                    <td>Date de Création du fichier</td>
+                                    <td>Date de création de la session</td>
                                 </tr>
                             </thead>
                         <?php 
@@ -103,16 +105,12 @@ if(!empty($_POST)) {
                                 <td>$Created_at</td>
                             </tr>
                         </tbody>";
-                                        
                 }
                 ?>
                     </table>
                     <input id="submit" type="submit">
                     </div>                    
-                </div>
-
-                
-                
+                </div>   
             </form>
     </div>
 

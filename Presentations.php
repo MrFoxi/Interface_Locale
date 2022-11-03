@@ -9,7 +9,7 @@
     <meta name="auteurs" content="Xavier Crenn , Clément Perdrix">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> -->
-    <link rel="stylesheet" href="css/Xavier_css_3.css">
+    <link rel="stylesheet" href="css/xavier_css.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
@@ -36,35 +36,28 @@ require "database.php";
         $cadenas_properties = 'fermer';
     }
 
-
     /*
-        Création d'une liste allant chercher tous les valeurs dans la table session de la base de données
+        
     */
 
-    $host = 'localhost';
-    $dbname = 'document';
-    $username = 'root';
-    $password = '';
-    $dsn = "mysql:host=$host;dbname=$dbname"; 
-    $session_sql = "SELECT id, titre FROM session";
+        $host = 'localhost';
+        $dbname = 'document';
+        $username = 'root';
+        $password = '';
+        $dsn = "mysql:host=$host;dbname=$dbname"; 
+        $session_sql = "SELECT id, titre FROM session";
 
-    try{
-        $pdo = new PDO($dsn, $username, $password);
-        $session_stmt = $pdo->query($session_sql);
-        
-        if($session_stmt === false){
-        die("Erreur");
+        try{
+            $pdo = new PDO($dsn, $username, $password);
+            $session_stmt = $pdo->query($session_sql);
+            
+            if($session_stmt === false){
+            die("Erreur");
+            }
+            
+        }catch (PDOException $e){
+            echo $e->getMessage();
         }
-        
-    }catch (PDOException $e){
-        echo $e->getMessage();
-    }
-
-        
-
-    /*
-        Ici on cherche quelle était la dernière session lancé avant de changer de page pour la réafficher ensuite
-    */
         $req = $pdo->prepare('SELECT session FROM lock_unlock');
         $req->execute();
         $cadenas_session = $req->fetchColumn();
@@ -80,9 +73,9 @@ require "database.php";
             $titre_session = $req->fetchColumn();
         }
 
-
-
-        
+        // if($titre_session == NULL) {
+        //     $titre_session = "Veuillez choisir une session";
+        // }f
 ?>
 <body>
     <div id="forms">
@@ -91,7 +84,7 @@ require "database.php";
             <?php if($cadenas_properties == 'ouvrir'): ?>
                 <div class="accueil">
                     <!--Lien peut etre à changer pour rediriger vers le menu-->
-                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;" src="images/maison.png" id="accueil" width="45px" height="45px"></a>
+                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;" src="images/burger.png" id="accueil" width="45px" height="45px"></a>
                 </div>
             <?php endif;?>
                 <div class="titre">
@@ -103,43 +96,33 @@ require "database.php";
             <div id="big_box">
                 
                 <ul id="presta_box">
+                    <!--venir mettre le php dedans pour générer des li-->
+                    <!--<//?php foreach($TABLEAU as $TAB): ?>-->
                     <?php
-                        
-                        /*
-                            Ici on vient compter le nombre de document au total
-                        */
+                        //venir modifier la requete pour y intégrer le nom de l'auteur
 
                         $req = $pdo->prepare('SELECT count(id) FROM document');
                         $req->execute();
                         $count = $req->fetchColumn();
 
-                        /*
-                            Puisqu'on à le nombre de document au total on va venir un par un regarder les informations avec un "FOR" et en limite le nombre de document au total
-                        */
+                        //va chercher le plus petit ID de la base, ensuite en itére
+                        $req = $pdo->prepare('SELECT id FROM document');
+                        $req->execute();
+                        $last_ID = $req->fetch();
 
                         for($i = 1; $i <= $count ; $i++){
 
-                            /*
-                                Récupération du titre, de la description, de l'ancien nom et du token_document en fonction de l'id
-                            */
-
-                            $req = $pdo->prepare("SELECT titre, description, AncienNom, token_document, num_intervenant FROM document WHERE id = $i");
+                            $req = $pdo->prepare("SELECT titre, description, AncienNom, token_document FROM document WHERE id = $i");
                             $req->execute();
                             $infos = $req->fetch(PDO::FETCH_ASSOC);
 
-                            /*
-                                Récupération de l'id de l'intervenant stocké dans document pour faire à nouveau une requête pour afficher les noms, prénoms, photos des intervenant
-                            */
-
-                            $num_intervenant = $infos['num_intervenant'];
+                            $req = $pdo->prepare("SELECT num_intervenant FROM document WHERE id = $i");
+                            $req->execute();
+                            $num_intervenant = $req->fetchColumn();
 
                             $req = $pdo->prepare("SELECT nom, prenom, token_photo FROM intervenant WHERE id = ?");
                             $req->execute([$num_intervenant]);
                             $nom_prenom_intervenant = $req->fetch(PDO::FETCH_ASSOC);
-
-                            /*
-                                Toutes les variables qu'on voudra utiliser à afficher
-                            */
 
                             $title = $infos['titre'];
                             $descrip = $infos['description'];
@@ -149,18 +132,11 @@ require "database.php";
                             $prenom_intervenant = $nom_prenom_intervenant['prenom'];
                             $token_photo = $nom_prenom_intervenant['token_photo'];
 
-                            /*
-                                Si il y a une session d'affiché via la liste manuelle
-                                On va aller chercher les documents de la session saisie à afficher
-                                
-                                Sinon on va chercher dans la base de données la valeur de la session précédente et l'afficher avec tout les documents qui vont avec
-                            */
-
+                            
                             if(isset($_POST['session'])){
                                 $req = $pdo->prepare('SELECT num_session FROM document WHERE id = ?');
                                 $req->execute([$i]);
                                 $num_session = $req->fetchColumn();
-                                
 
                                 if($_POST['session'] == $num_session){
                                     displayList($title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties);
@@ -175,13 +151,10 @@ require "database.php";
                                     displayList($title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties);
                                 }
                             }
-                                                                 
                         }
 
-                        /*
-                            On a ici la fonction qui sert à afficher un document avec toutes les informations situées dans les paramètres
-                        */
-
+                        //Affichage de la liste des présentations
+                        //AJOUTER LA PHOTO DE PROFIL EN FONCTION DE LA PERSONNE
                         function displayList($title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties){
 
                             $token = explode('.', $token);
@@ -205,38 +178,43 @@ require "database.php";
                                     echo "$AncienNom";
                                     echo "</h4>";
                                 echo '</div>';
-                                echo "<div class='lien'><a href='../InterfaceLocale/Session/Session_$num_session/".$token[0].".bat'><button data-modal-target='#\modal' class='btn-primary' type='button'><img id='fleche-photo' src='images/green_rounded_triangle.png'></button></a></div>";
+                                echo "<div class='lien'><a href='Session_$num_session/".$token[0].".bat'><button data-modal-target='#\modal' class='btn-primary' type='button'>Télécharger</button></a></div>";
                                 if($cadenas_properties == 'ouvrir'){
-                                    echo "<div><a href='Editer?=".$token[0].".".$token[1]."'><img style='width:100px;height:100px;' src='images/trois-points.png'/></a></div>";
+                                    echo "<div id='bouton_editer' ><a href='Editer?=".$token[0].".".$token[1]."'><img style='width:50px;height:50px;' src='images/edit.png'/></a></div>";
                                 }
                             echo "</li>";
                                                    
-                        }                        
+                        }
+                        
+                        //echo'<li>';
+                        //echo '</li>';
+                        // 
+                        
                     ?>
-                <!-- -->
+                    
                 </ul>
             </div>
-            <!-- Afficher ou pas si le cadenas est fermé ou ouvert -->
             <?php if($cadenas_properties == 'ouvrir'): ?>
-                <center><h2><a href="AjouteurDePresentations.php">Cliquez ici pour ajouter une présentation</a></h2></center>
-                <p>                        </p>
-                
-                <form method="post">
-                    <select name="session">
-                        <?php while($row = $session_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
-                            <option name="session" value="<?= $row['id']?>">
-                                <?php echo htmlspecialchars(($row['titre'])); ?>
-                            </option>
-                        <?php endwhile; ?>
-                    </select>
-                    <input type="submit">
-                </form>
-            <?php endif;?>
+                <div class="footer_box">
+                    <center><h2><a href="AjouteurDePresentations.php">Cliquez ici pour ajouter une présentation</a></h2></center>
+                    <div class="choix_session">
+                        <form method="post">
+                            <select name="session">
+                                <option value="0">--Changer de session--</option>
+                                <?php while($row = $session_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
+                                    <option name="session" value="<?= $row['id']?>">
+                                        <?php echo htmlspecialchars(($row['titre'])); ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                            <input type="submit" id="submit_session" value="Let's Go !">
+                        </form>
+                    <?php endif;?>
+                    </div>
+                </div>
         </form>
-        
     </div>
     <?php
-
         $session_cad = $cadenas_session;
         if(isset($_POST['session'])) {
             $session_cad = $_POST['session'];

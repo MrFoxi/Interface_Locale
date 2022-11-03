@@ -30,6 +30,7 @@
         $dsn = "mysql:host=$host;dbname=$dbname"; 
         $intervenant_sql = "SELECT id, nom, prenom FROM intervenant";
         $session_sql = "SELECT id, titre FROM session";
+        $jour_sql = "SELECT id FROM jour";
         try{
             $pdo = new PDO($dsn, $username, $password);
             $intervenant_stmt = $pdo->query($intervenant_sql);
@@ -53,6 +54,16 @@
         }catch (PDOException $e){
             echo $e->getMessage();
         }
+        try{
+            $pdo = new PDO($dsn, $username, $password);
+            $jour_stmt = $pdo-> query($jour_sql);
+
+            if($jour_stmt === false){
+                die("Erreur");
+            }
+        }catch (PDOException $e){
+            echo $e ->getMessage();
+        }
 
 
     $token_document = str_random(60);
@@ -66,11 +77,11 @@
             //transfert de fichier
             $test = explode('.' ,$name);
             var_dump($test);
-            move_uploaded_file($tmpName, "C:\wamp64\www\InterfaceLocale\Session/Session_".$_POST['session']."/$token_document.".$test[1]."");
+            move_uploaded_file($tmpName, "Session_".$_POST['session']."/$token_document.".$test[1]."");
 
-            $bathfilebat = fopen("C:\wamp64\www\InterfaceLocale\Session/Session_".$_POST['session']."/$token_document.bat","w");
-            $txtbat = "start C:/wamp64/www/InterfaceLocale/Attente_AVEF.mp4
-start C:\wamp64\www\InterfaceLocale\Session/Session_".$_POST['session']."/$token_document.vbs
+            $bathfilebat = fopen("Session_".$_POST['session']."/$token_document.bat","w");
+            $txtbat = "start C:/wamp64/www/FTS-plateforme-de-diffusion/pages/InterfaceLocale/Attente_AVEF.mp4
+start C:/wamp64/www/FTS-plateforme-de-diffusion/pages/InterfaceLocale/Session_".$_POST['session']."/$token_document.vbs
 timeout 7
 TASKKILL /f /im Video.UI.exe ";
             fwrite($bathfilebat, $txtbat);
@@ -78,12 +89,12 @@ TASKKILL /f /im Video.UI.exe ";
 
             $lien = "$token_document.".$test[1]."";
 
-            $bathfilevbs = fopen("C:\wamp64\www\InterfaceLocale\Session/Session_".$_POST['session']."/$token_document.vbs","w");
+            $bathfilevbs = fopen("Session_".$_POST['session']."/$token_document.vbs","w");
             $txtvbs = 'set shell = CreateObject("WScript.Shell")
 shell.SendKeys "^{PGUP}"
 WScript.Sleep 1000
 shell.SendKeys "{ESC}"
-shell.Run("C:\wamp64\www\InterfaceLocale\Session/Session_'.$_POST['session'].'/'.$lien.'")
+shell.Run("C:/wamp64/www/FTS-plateforme-de-diffusion/pages/InterfaceLocale/Session_'.$_POST['session'].'/'.$lien.'")
 WScript.Sleep 7000
 shell.SendKeys "{F5}"';
             fwrite($bathfilevbs, $txtvbs);
@@ -111,10 +122,10 @@ shell.SendKeys "{F5}"';
             <div class="head_box">
                 <div class="accueil">
                     <!--Lien peut etre à changer pour rediriger vers le menu-->
-                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;" src="images/maison.png" id="accueil" width="45px" height="45px"></a>
+                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;" src="images/burger.png" id="accueil" width="45px" height="45px"></a>
                 </div>
                 <div class="titre">
-                    <h1>Ajouter une présentations</h1>
+                    <h1>Ajouter une présentation</h1>
                 </div>
             </div>
             <div id="big_box">
@@ -146,13 +157,10 @@ shell.SendKeys "{F5}"';
                         </div>
                     </div>
 
-
                 </div>
 
 
                 <div id="small_box">
-
-
                     <label>
                         <h2>Mes Documents</h2>
                     </label>
@@ -166,8 +174,8 @@ shell.SendKeys "{F5}"';
                         <h2>Intervenant</h2>
                     </label>
                     <div>
-                        <select name="intervenant" required>
-                            <option value="">--Veuillez choisir un Intervenant--</option>
+                        <select name="intervenant" required id="liste_intervenants">
+                            <option value="0" id="option">--Veuillez choisir un Intervenant--</option>
                             <?php while($row = $intervenant_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
                                 <option name="intervenant" value="<?= $row['id']?>">
                                     <?php echo htmlspecialchars(($row['nom']));echo " "; echo htmlspecialchars(($row['prenom'])); ?>
@@ -181,19 +189,19 @@ shell.SendKeys "{F5}"';
                         <h2>Session</h2>
                     </label>
                     <div>
-                        <select name="session" required>
-                            <option value="">--Veuillez choisir une session--</option>
+                        <select name="session" required id="liste_sessions">
+                            <option value="0">--Veuillez choisir une session--</option>
                             <?php while($row = $session_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
                                 <option name="session" value="<?= $row['id']?>">
                                     <?php echo htmlspecialchars(($row['titre'])); ?>
                                 </option>
                             <?php endwhile; ?>
                         </select>
-                        <img id="check_ppl" class="check" hidden src="images/Green_check.svg.png" width="20px">
+                        <img id="check_session" class="check" hidden src="images/Green_check.svg.png" width="20px">
                     </div>
 
 
-                    <a id="submit" type="submit"><button class="enregistrer">Enregistrer</button></a>
+                    <a id="submit" type="submit"><button class="enregistrer" disabled id="submit_button">Enregistrer</button></a>
 
 
                 </div>
@@ -202,32 +210,46 @@ shell.SendKeys "{F5}"';
 
         </form>
     </div>
+</body>
+
+</html>
 <script>
     var check_titre = document.getElementById("check_title");
     var check_descrip = document.getElementById("check_descrip");
     var check_docs = document.getElementById("check_doc");
     var check_intervenant = document.getElementById("check_ppl");
+    var check_session = document.getElementById("check_session");
+
     var titre = document.getElementById("input_title");
     var descrip = document.getElementById("text_area");
     var docs = document.getElementById("fileupload");
     var intervenant = document.getElementById("liste_intervenants");
+    var session = document.getElementById("liste_sessions");
+    var submit = document.getElementById("submit_button");
+    var lien = document.getElementById("submit")
 
     titre.addEventListener('change', function (){
         var titreValide = titre.checkValidity();
 
         if(titreValide){
             check_titre.hidden = false;
+            if(check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden == false && check_docs.hidden == false){
+                bouton = document.getElementById("submit_button");
+                bouton.disabled = false;
+    }
         }else{
-            check_titre.disabled = true;
+            check_titre.hidden = true;
+            bouton.disabled = true
         }
     });
+
     descrip.addEventListener('change', function (){
         var descripValide = descrip.checkValidity();
 
         if(descripValide){
             check_descrip.hidden = false;
         }else{
-            check_descrip.disabled = true;
+            check_descrip.hidden = true;
         }
     });
     docs.addEventListener('input', function (){
@@ -236,7 +258,7 @@ shell.SendKeys "{F5}"';
         if(docsValide){
             check_docs.hidden = false;
         }else{
-            check_docs.disabled = true;
+            check_docs.hidden = true;
         }
     });
     intervenant.addEventListener('click', function (){
@@ -245,12 +267,33 @@ shell.SendKeys "{F5}"';
         if(intervenant.value[0] != 0){
             check_intervenant.hidden = false;
             console.log(intervenant.value[0])
+            if(check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden == false && check_docs.hidden == false){
+                bouton = document.getElementById("submit_button");
+                bouton.disabled = false
+    }
         }else{
-            check_intervenant.disabled = true;
+            check_intervenant.hidden = true;
+            bouton.disabled = true
         }
     });
+    session.addEventListener('click', function (){
+        var listValues = session.value;
+
+        if(session.value[0] != 0){
+            check_session.hidden = false;
+            if(check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden == false && check_docs.hidden == false){
+                bouton = document.getElementById("submit_button");
+                bouton.disabled = false;
+    }
+        }else{
+            check_session.hidden = true;
+            bouton.disabled = true
+        }
+    });
+    // lien.addEventListener('mouseover', function(){
+    //     submit.style.boxShadow = "none"
+    //     if(submit.disabled == true){
+    //     }
+    // });
 
 </script>
-</body>
-
-</html>

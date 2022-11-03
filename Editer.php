@@ -76,7 +76,7 @@
 
     //test si la variable est nulle
         if(isset($_FILES['fileupload'])){
-            unlink("Session/Session_".$_POST['session']."/$token_document");
+            unlink("Session_".$_POST['session']."/$token_document");
             $tmpName = $_FILES['fileupload']['tmp_name'];
             $name = $_FILES['fileupload']['name'];
             $size = $_FILES['fileupload']['size'];
@@ -86,18 +86,18 @@
             $token_document = explode('.', $token_document);
             $test = explode('.' ,$name);
             var_dump($test);
-            move_uploaded_file($tmpName, "Session/Session_".$_POST['session']."/".$token_document[0].".".$test[1]."");
+            move_uploaded_file($tmpName, "Session_".$_POST['session']."/".$token_document[0].".".$test[1]."");
 
 
             $lien = $token_document[0].".".$test[1];
 
             unlink("Session_".$_POST['session']."/".$token_document[0].".vbs");
-            $bathfilevbs = fopen("Session/Session_".$_POST['session']."/".$token_document[0].".vbs","w");
+            $bathfilevbs = fopen("Session_".$_POST['session']."/".$token_document[0].".vbs","w");
             $txtvbs = 'set shell = CreateObject("WScript.Shell")
 shell.SendKeys "^{PGUP}"
 WScript.Sleep 1000
 shell.SendKeys "{ESC}"
-shell.Run("C:/wamp64/www/InterfaceLocale/Session/Session_'.$_POST['session'].'/'.$lien.'")
+shell.Run("C:/wamp64/www/InterfaceLocale/Session_'.$_POST['session'].'/'.$lien.'")
 WScript.Sleep 7000
 shell.SendKeys "{F5}"';
             fwrite($bathfilevbs, $txtvbs);
@@ -122,15 +122,23 @@ shell.SendKeys "{F5}"';
     ?>
     <div id="forms">
         <form action="" method="post" enctype="multipart/form-data" class="form-example">
-            <h1>Éditeur de présentations</h1>
+        <div class="head_box">
+                <div class="accueil">
+                    <!--Lien peut etre à changer pour rediriger vers le menu-->
+                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;" src="images/burger.png" id="accueil" width="45px" height="45px"></a>
+                </div>
+                <div class="titre">
+                    <h1>EDITEUR DE PRESENTATION</h1>
+                </div>
+            </div>
             <div id="big_box">
                 <div id="medium_box">
                     <div id="title">
                         <label for="name">
                             <h2>Titre de la présentation *</h2>
                         </label>
-                        <input type="text" placeholder="Exemple : Caféine et corps humain." name="title" value="<?=$title?>"
-                            id="input_title" required>
+                        <input type="text" placeholder="Exemple : Caféine et corps humain." name="title"
+                            value="<?=$title?>" id="input_title" required>
                     </div>
                     <div id="description">
                         <label for="name">
@@ -142,30 +150,126 @@ shell.SendKeys "{F5}"';
                 </div>
                 <div id="small_box">
                     <h2>Mes Documents</h2>
-                    <input type="file" id="fileupload" name="fileupload" 
-                        value="importer un document" required>
+                    <input type="file" id="fileupload" name="fileupload" value="importer un document" required>
                     <h2>Intervenant</h2>
-                    <select name="intervenant" required>
-                        <option name ="intervenant" value="<?=$title?>"><?=$nom_Intervenant." ".$prenom_Intervenant?></option>
-                        <?php while($row = $intervenant_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
-                            <option name="intervenant" value="<?= $row['id']?>"><?php echo htmlspecialchars(($row['nom']));echo " "; echo htmlspecialchars(($row['prenom'])); ?></option>
-                        <?php endwhile; ?>
-                    </select>
-                    <br/>
-                    <h2>Session</h2><br/>
-                    <select name="session" required>
-                        <option value="<?= $num_session;?>"><?=$titre_session;?></option>
-                        <?php while($row = $session_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
-                            <option name="session" value="<?= $row['id']?>"><?php echo htmlspecialchars(($row['titre'])); ?></option>
-                        <?php endwhile; ?>
-                    </select>
-                    <input id="submit" type="submit">
+                    <div>
+                        <select name="intervenant" required id="liste_intervenants">
+                            <option name="intervenant" value="<?=$title?>"><?=$nom_Intervenant." ".$prenom_Intervenant?>
+                            </option>
+                            <?php while($row = $intervenant_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
+                            <option name="intervenant" value="<?= $row['id']?>">
+                                <?php echo htmlspecialchars(($row['nom']));echo " "; echo htmlspecialchars(($row['prenom'])); ?>
+                            </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+                    <label>
+                        <h2>Session</h2>
+                    </label>
+                    <div>
+
+                        <select name="session" required id="liste_sessions">
+                            <option value="<?= $num_session;?>"><?=$titre_session;?></option>
+                            <?php while($row = $session_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
+                            <option name="session" value="<?= $row['id']?>">
+                                <?php echo htmlspecialchars(($row['titre'])); ?>
+                            </option>
+                            <?php endwhile; ?>
+                        </select>
+                        <input id="submit" type="submit">
+                        <img id="check_session" class="check" hidden src="images/Green_check.svg.png" width="20px">
+                    </div>
                 </div>
-                
+
             </div>
 
         </form>
     </div>
+    <script>
+        var check_titre = document.getElementById("check_title");
+        var check_descrip = document.getElementById("check_descrip");
+        var check_docs = document.getElementById("check_doc");
+        var check_intervenant = document.getElementById("check_ppl");
+        var check_session = document.getElementById("check_session");
+
+        var titre = document.getElementById("input_title");
+        var descrip = document.getElementById("text_area");
+        var docs = document.getElementById("fileupload");
+        var intervenant = document.getElementById("liste_intervenants");
+        var session = document.getElementById("liste_sessions");
+        var count = 0;
+
+        titre.addEventListener('change', function () {
+            var titreValide = titre.checkValidity();
+
+            if (titreValide) {
+                check_titre.hidden = false;
+                if (check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden ==
+                    false && check_docs.hidden == false) {
+                    bouton = document.getElementById("submit_button");
+                    bouton.disabled = false;
+                }
+            } else {
+                check_titre.hidden = true;
+            }
+        });
+
+        descrip.addEventListener('change', function () {
+            var descripValide = descrip.checkValidity();
+
+            if (descripValide) {
+                check_descrip.hidden = false;
+            } else {
+                check_descrip.hidden = true;
+            }
+        });
+        docs.addEventListener('input', function () {
+            var docsValide = docs.checkValidity();
+
+            if (docsValide) {
+                check_docs.hidden = false;
+            } else {
+                check_docs.hidden = true;
+            }
+        });
+        intervenant.addEventListener('click', function () {
+            var listValues = intervenant.value;
+
+            if (intervenant.value[0] != 0) {
+                check_intervenant.hidden = false;
+                console.log(intervenant.value[0])
+                if (check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden ==
+                    false && check_docs.hidden == false) {
+                    bouton = document.getElementById("submit_button");
+                    bouton.disabled = false
+                }
+            } else {
+                check_intervenant.hidden = true;
+            }
+        });
+        session.addEventListener('click', function () {
+            var listValues = session.value;
+
+            if (session.value[0] != 0) {
+                check_session.hidden = false;
+                if (check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden ==
+                    false && check_docs.hidden == false) {
+                    bouton = document.getElementById("submit_button");
+                    bouton.disabled = false;
+                }
+            } else {
+                check_session.hidden = true;
+            }
+        });
+
+        console.log(count)
+
+        if (check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden == false &&
+            check_docs.hidden == false) {
+            bouton = document.getElementById("submit_button");
+            bouton.disabled = false
+        }
+    </script>
 
 </body>
 
