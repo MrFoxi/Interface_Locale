@@ -76,7 +76,7 @@
 
     //test si la variable est nulle
         if(isset($_FILES['fileupload'])){
-            unlink("Session_".$_POST['session']."/$token_document");
+            unlink("Session/Session_".$num_session."/$token_document");
             $tmpName = $_FILES['fileupload']['tmp_name'];
             $name = $_FILES['fileupload']['name'];
             $size = $_FILES['fileupload']['size'];
@@ -86,18 +86,29 @@
             $token_document = explode('.', $token_document);
             $test = explode('.' ,$name);
             var_dump($test);
-            move_uploaded_file($tmpName, "Session_".$_POST['session']."/".$token_document[0].".".$test[1]."");
+            move_uploaded_file($tmpName, "Session/Session_".$_POST['session']."/".$token_document[0].".".$test[1]."");
+            echo "Session/Session_".$_POST['session']."/".$token_document[0].".".$test[1]."";
 
 
             $lien = $token_document[0].".".$test[1];
 
-            unlink("Session_".$_POST['session']."/".$token_document[0].".vbs");
-            $bathfilevbs = fopen("Session_".$_POST['session']."/".$token_document[0].".vbs","w");
+
+            unlink("Session/Session_$num_session/".$token_document[0].".bat");
+            $bathfilebat = fopen("Session/Session_".$_POST['session']."/".$token_document[0].".bat","w");
+            $txtbat = "start C:/wamp64/www/InterfaceLocale/Attente_AVEF.mp4
+start C:/wamp64/www/InterfaceLocale/Session/Session_".$_POST['session']."/".$token_document[0].".vbs
+timeout 7
+TASKKILL /f /im Video.UI.exe ";
+            fwrite($bathfilebat, $txtbat);
+            fclose($bathfilebat);
+
+            unlink("Session/Session_$num_session/".$token_document[0].".vbs");
+            $bathfilevbs = fopen("Session/Session_".$_POST['session']."/".$token_document[0].".vbs","w");
             $txtvbs = 'set shell = CreateObject("WScript.Shell")
 shell.SendKeys "^{PGUP}"
 WScript.Sleep 1000
 shell.SendKeys "{ESC}"
-shell.Run("C:/wamp64/www/InterfaceLocale/Session_'.$_POST['session'].'/'.$lien.'")
+shell.Run("C:/wamp64/www/InterfaceLocale/Session/Session_'.$_POST['session'].'/'.$lien.'")
 WScript.Sleep 7000
 shell.SendKeys "{F5}"';
             fwrite($bathfilevbs, $txtvbs);
@@ -113,9 +124,9 @@ shell.SendKeys "{F5}"';
                 $new_description = $_POST['text_area'];
                 $new_titre = $_POST['title'];
                 //rajouter le nom de la connexion utilisateur pour le "author"
-                $req = $pdo ->prepare("UPDATE document SET titre = ?, description =  ?, AncienNom = ?, token_document = ?, num_intervenant = ? WHERE id = ?");
+                $req = $pdo ->prepare("UPDATE document SET titre = ?, description =  ?, AncienNom = ?, token_document = ?, num_intervenant = ?, num_session = ? WHERE id = ?");
                 //faut mettre un tableau en params (1 argument seulement accepté)
-                $req->execute([$new_titre, $new_description, $name, $lien, $_POST['intervenant'], $id]);
+                $req->execute([$new_titre, $new_description, $name, $lien, $_POST['intervenant'], $_POST['session'], $id]);
                 header("location: ./Presentations.php");
             }
         }

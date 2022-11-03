@@ -178,7 +178,7 @@ require "database.php";
                                     echo "$AncienNom";
                                     echo "</h4>";
                                 echo '</div>';
-                                echo "<div class='lien'><a href='Session_$num_session/".$token[0].".bat'><button data-modal-target='#\modal' class='btn-primary' type='button'>Télécharger</button></a></div>";
+                                echo "<div class='lien'><a href='Session/Session_$num_session/".$token[0].".bat'><button data-modal-target='#\modal' class='btn-primary' type='button'>Télécharger</button></a></div>";
                                 if($cadenas_properties == 'ouvrir'){
                                     echo "<div id='bouton_editer' ><a href='Editer?=".$token[0].".".$token[1]."'><img style='width:50px;height:50px;' src='images/edit.png'/></a></div>";
                                 }

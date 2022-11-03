@@ -30,7 +30,6 @@
         $dsn = "mysql:host=$host;dbname=$dbname"; 
         $intervenant_sql = "SELECT id, nom, prenom FROM intervenant";
         $session_sql = "SELECT id, titre FROM session";
-        $jour_sql = "SELECT id FROM jour";
         try{
             $pdo = new PDO($dsn, $username, $password);
             $intervenant_stmt = $pdo->query($intervenant_sql);
@@ -54,16 +53,6 @@
         }catch (PDOException $e){
             echo $e->getMessage();
         }
-        try{
-            $pdo = new PDO($dsn, $username, $password);
-            $jour_stmt = $pdo-> query($jour_sql);
-
-            if($jour_stmt === false){
-                die("Erreur");
-            }
-        }catch (PDOException $e){
-            echo $e ->getMessage();
-        }
 
 
     $token_document = str_random(60);
@@ -77,11 +66,12 @@
             //transfert de fichier
             $test = explode('.' ,$name);
             var_dump($test);
-            move_uploaded_file($tmpName, "Session_".$_POST['session']."/$token_document.".$test[1]."");
+            echo "Session/Session_".$_POST['session']."/$token_document.".$test[1]."";
+            move_uploaded_file($tmpName, "Session/Session_".$_POST['session']."/$token_document.".$test[1]."");
 
-            $bathfilebat = fopen("Session_".$_POST['session']."/$token_document.bat","w");
-            $txtbat = "start C:/wamp64/www/FTS-plateforme-de-diffusion/pages/InterfaceLocale/Attente_AVEF.mp4
-start C:/wamp64/www/FTS-plateforme-de-diffusion/pages/InterfaceLocale/Session_".$_POST['session']."/$token_document.vbs
+            $bathfilebat = fopen("Session/Session_".$_POST['session']."/$token_document.bat","w");
+            $txtbat = "start C:/wamp64/www/InterfaceLocale/Attente_AVEF.mp4
+start C:/wamp64/www/InterfaceLocale/Session/Session_".$_POST['session']."/$token_document.vbs
 timeout 7
 TASKKILL /f /im Video.UI.exe ";
             fwrite($bathfilebat, $txtbat);
@@ -89,12 +79,12 @@ TASKKILL /f /im Video.UI.exe ";
 
             $lien = "$token_document.".$test[1]."";
 
-            $bathfilevbs = fopen("Session_".$_POST['session']."/$token_document.vbs","w");
+            $bathfilevbs = fopen("Session/Session_".$_POST['session']."/$token_document.vbs","w");
             $txtvbs = 'set shell = CreateObject("WScript.Shell")
 shell.SendKeys "^{PGUP}"
 WScript.Sleep 1000
 shell.SendKeys "{ESC}"
-shell.Run("C:/wamp64/www/FTS-plateforme-de-diffusion/pages/InterfaceLocale/Session_'.$_POST['session'].'/'.$lien.'")
+shell.Run("C:/wamp64/www/InterfaceLocale/Session/Session_'.$_POST['session'].'/'.$lien.'")
 WScript.Sleep 7000
 shell.SendKeys "{F5}"';
             fwrite($bathfilevbs, $txtvbs);

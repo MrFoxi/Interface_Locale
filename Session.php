@@ -28,15 +28,15 @@ if(!empty($_POST)) {
         if($exists == false){
             $req = $pdo->prepare('INSERT INTO session (created_at) VALUES (?);');
             $req->execute([date("Y-m-d H:i:s")]);
-            if(file_exists("Session_$i")){
+            if(file_exists("Session/Session_$i")){
     
             } else  {
-                mkdir("Session_$i");
+                mkdir("Session/Session_$i");
             }
         }
         
     }
-    header("location: ./Presentations.php");
+    // header("location: ./Presentations.php");
 }
 
 
