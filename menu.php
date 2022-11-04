@@ -13,10 +13,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        var bouton = document.getElementById('menu_lien');
+        var fond_a_changer = document.body
+
+        bouton.onmouseover = function(){
+            fond_a_changer.className = 'hovered';
+        }
+        bouton.onmouseout = function(){
+            fond_a_changer.className = '';
+        }
+    </script>
 
 </head>
 
-<body>
+<body class="">
     <div id="forms">
         <form id="" action="" enctype="multipart/form-data" method="post" class="form-example">
             

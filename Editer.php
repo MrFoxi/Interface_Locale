@@ -165,10 +165,11 @@ shell.SendKeys "{F5}"';
                     <h2>Intervenant</h2>
                     <div>
                         <select name="intervenant" required id="liste_intervenants">
-                            <option name="intervenant" value="<?=$title?>"><?=$nom_Intervenant." ".$prenom_Intervenant?>
+                            <option name="intervenant" value="<?= $num_intervenant;?>"><?=$nom_Intervenant." ".$prenom_Intervenant?>
+                            <?= $token_interdit = $num_intervenant;?>
                             </option>
                             <?php while($row = $intervenant_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
-                            <option name="intervenant" value="<?= $row['id']?>">
+                            <option name="intervenant" value="<?= $num_intervenant?>">
                                 <?php echo htmlspecialchars(($row['nom']));echo " "; echo htmlspecialchars(($row['prenom'])); ?>
                             </option>
                             <?php endwhile; ?>
@@ -187,8 +188,8 @@ shell.SendKeys "{F5}"';
                             </option>
                             <?php endwhile; ?>
                         </select>
-                        <input id="submit" type="submit">
                         <img id="check_session" class="check" hidden src="images/Green_check.svg.png" width="20px">
+                        <input id="submit" type="submit">
                     </div>
                 </div>
 
