@@ -58,6 +58,7 @@
     $num_intervenant = $recuperation['num_intervenant'];
     $num_session = $recuperation['num_session'];
 
+
     $req = $pdo->prepare("SELECT nom, prenom, token_photo FROM intervenant WHERE id = ?");
     $req->execute([$num_intervenant]);
     $nom_prenom_intervenant = $req->fetch(PDO::FETCH_ASSOC);
@@ -122,12 +123,14 @@ shell.SendKeys "{F5}"';
             if(isset($_POST['text_area'])){
 
                 $new_description = $_POST['text_area'];
+                var_dump($new_description);
                 $new_titre = $_POST['title'];
+                var_dump($new_titre);
                 //rajouter le nom de la connexion utilisateur pour le "author"
                 $req = $pdo ->prepare("UPDATE document SET titre = ?, description =  ?, AncienNom = ?, token_document = ?, num_intervenant = ?, num_session = ? WHERE id = ?");
                 //faut mettre un tableau en params (1 argument seulement accepté)
-                $req->execute([$new_titre, $new_description, $name, $lien, $_POST['intervenant'], $_POST['session'], $id]);
-                header("location: ./Presentations.php");
+                $req->execute([$_POST['title'], $_POST['text_area'], $name, $lien, $_POST['intervenant'], $_POST['session'], $id]);
+                // header("location: ./Presentations.php");
             }
         }
     ?>
@@ -164,15 +167,26 @@ shell.SendKeys "{F5}"';
                     <input type="file" id="fileupload" name="fileupload" value="importer un document" required>
                     <h2>Intervenant</h2>
                     <div>
+                        
                         <select name="intervenant" required id="liste_intervenants">
-                            <option name="intervenant" value="<?=$title?>"><?=$nom_Intervenant." ".$prenom_Intervenant?>
-                            </option>
+
+                            
+
                             <?php while($row = $intervenant_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
-                            <option name="intervenant" value="<?= $row['id']?>">
+                                <?php
+                                    if($row['id'] == $num_intervenant) {
+                                        $selected_intervenant = 'selected';
+                                    } else {
+                                        $selected_intervenant = '';
+                                    }
+                                ?>
+                            <option name="intervenant" value="<?= $row['id']?>" <?=$selected_intervenant;?>>
                                 <?php echo htmlspecialchars(($row['nom']));echo " "; echo htmlspecialchars(($row['prenom'])); ?>
                             </option>
                             <?php endwhile; ?>
+
                         </select>
+
                     </div>
                     <label>
                         <h2>Session</h2>
@@ -180,15 +194,22 @@ shell.SendKeys "{F5}"';
                     <div>
 
                         <select name="session" required id="liste_sessions">
-                            <option value="<?= $num_session;?>"><?=$titre_session;?></option>
+                            
                             <?php while($row = $session_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
-                            <option name="session" value="<?= $row['id']?>">
+                                <?php
+                                    if($row['id'] == $num_session) {
+                                        $selected_session = 'selected';
+                                    } else {
+                                        $selected_session = '';
+                                    }
+                                ?>
+                            <option name="session" value="<?= $row['id']?>" <?=$selected_session;?>>
                                 <?php echo htmlspecialchars(($row['titre'])); ?>
                             </option>
                             <?php endwhile; ?>
                         </select>
-                        <input id="submit" type="submit">
                         <img id="check_session" class="check" hidden src="images/Green_check.svg.png" width="20px">
+                        <input id="submit" type="submit">
                     </div>
                 </div>
 
