@@ -13,6 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
+    
 </head>
 
 <body>
@@ -57,8 +58,6 @@
 
     $num_intervenant = $recuperation['num_intervenant'];
     $num_session = $recuperation['num_session'];
-
-
     $req = $pdo->prepare("SELECT nom, prenom, token_photo FROM intervenant WHERE id = ?");
     $req->execute([$num_intervenant]);
     $nom_prenom_intervenant = $req->fetch(PDO::FETCH_ASSOC);
@@ -73,7 +72,6 @@
     $token_document = $recuperation['token_document'];
     $nom_Intervenant = $nom_prenom_intervenant['nom'];
     $prenom_Intervenant = $nom_prenom_intervenant['prenom'];
-
 
     //test si la variable est nulle
         if(isset($_FILES['fileupload'])){
@@ -90,9 +88,7 @@
             move_uploaded_file($tmpName, "Session/Session_".$_POST['session']."/".$token_document[0].".".$test[1]."");
             echo "Session/Session_".$_POST['session']."/".$token_document[0].".".$test[1]."";
 
-
             $lien = $token_document[0].".".$test[1];
-
 
             unlink("Session/Session_$num_session/".$token_document[0].".bat");
             $bathfilebat = fopen("Session/Session_".$_POST['session']."/".$token_document[0].".bat","w");
@@ -115,65 +111,73 @@ shell.SendKeys "{F5}"';
             fwrite($bathfilevbs, $txtvbs);
             fclose($bathfilevbs);
             
-
-
             var_dump($_FILES['fileupload']);
             var_dump($_POST['intervenant']);
 
             if(isset($_POST['text_area'])){
 
                 $new_description = $_POST['text_area'];
-                var_dump($new_description);
                 $new_titre = $_POST['title'];
-                var_dump($new_titre);
                 //rajouter le nom de la connexion utilisateur pour le "author"
                 $req = $pdo ->prepare("UPDATE document SET titre = ?, description =  ?, AncienNom = ?, token_document = ?, num_intervenant = ?, num_session = ? WHERE id = ?");
                 //faut mettre un tableau en params (1 argument seulement accepté)
-                $req->execute([$_POST['title'], $_POST['text_area'], $name, $lien, $_POST['intervenant'], $_POST['session'], $id]);
-                // header("location: ./Presentations.php");
+                $req->execute([$new_titre, $new_description, $name, $lien, $_POST['intervenant'], $_POST['session'], $id]);
+                header("location: ./Presentations.php");
             }
         }
     ?>
     <div id="forms">
         <form action="" method="post" enctype="multipart/form-data" class="form-example">
-        <div class="head_box">
+            <div class="head_box">
                 <div class="accueil">
                     <!--Lien peut etre à changer pour rediriger vers le menu-->
-                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;" src="images/burger.png" id="accueil" width="45px" height="45px"></a>
+                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;"
+                            src="images/burger.png" id="accueil" width="45px" height="45px"></a>
                 </div>
                 <div class="titre">
                     <h1>EDITEUR DE PRESENTATION</h1>
                 </div>
             </div>
             <div id="big_box">
+
                 <div id="medium_box">
+
                     <div id="title">
+
                         <label for="name">
                             <h2>Titre de la présentation *</h2>
                         </label>
                         <input type="text" placeholder="Exemple : Caféine et corps humain." name="title"
                             value="<?=$title?>" id="input_title" required>
-                    </div>
-                    <div id="description">
-                        <label for="name">
-                            <h2>Description</h2>
-                        </label>
-                        <textarea cols="30" id="text_area" name="text_area" class="text"
+                            <img id="check_title" class="check" src="images/Green_check.svg.png" width="20px">
+                        </div>
+
+                        <div id="description">
+                            <label for="name">
+                                <h2>Description</h2>
+                            </label>
+                            <textarea cols="30" id="text_area" name="text_area" class="text"
                             placeholder="Description..."><?=$descrip?></textarea>
+                            <img id="check_descrip" class="check" src="images/Green_check.svg.png" width="20px">
+                        </div>
                     </div>
-                </div>
-                <div id="small_box">
-                    <h2>Mes Documents</h2>
-                    <input type="file" id="fileupload" name="fileupload" value="importer un document" required>
-                    <h2>Intervenant</h2>
+
+                    <div id="small_box">
+
+                    <label>
+                        <h2>Mes Documents</h2>
+                    </label>
                     <div>
-                        
+                        <input type="file" id="fileupload" name="fileupload" value="importer un document" required>
+                        <img id="check_doc" class="check" hidden src="images/Green_check.svg.png" width="20px">
+                    </div>
+
+                    <label>
+                        <h2>Intervenant</h2>
+                    </label>
+                    <div>
                         <select name="intervenant" required id="liste_intervenants">
-<<<<<<< HEAD
-
-                            
-
-                            <?php while($row = $intervenant_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
+                        <?php while($row = $intervenant_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
                                 <?php
                                     if($row['id'] == $num_intervenant) {
                                         $selected_intervenant = 'selected';
@@ -185,17 +189,15 @@ shell.SendKeys "{F5}"';
                                 <?php echo htmlspecialchars(($row['nom']));echo " "; echo htmlspecialchars(($row['prenom'])); ?>
                             </option>
                             <?php endwhile; ?>
-
                         </select>
-
+                        <img id="check_ppl" class="check" src="images/Green_check.svg.png" width="20px">
                     </div>
+
                     <label>
                         <h2>Session</h2>
                     </label>
                     <div>
-
                         <select name="session" required id="liste_sessions">
-                            
                             <?php while($row = $session_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
                                 <?php
                                     if($row['id'] == $num_session) {
@@ -209,101 +211,13 @@ shell.SendKeys "{F5}"';
                             </option>
                             <?php endwhile; ?>
                         </select>
-                        <img id="check_session" class="check" hidden src="images/Green_check.svg.png" width="20px">
+                        <img id="check_session" class="check" src="images/Green_check.svg.png" width="20px">
                         <input id="submit" type="submit">
                     </div>
                 </div>
-
             </div>
-
         </form>
     </div>
-    <script>
-        var check_titre = document.getElementById("check_title");
-        var check_descrip = document.getElementById("check_descrip");
-        var check_docs = document.getElementById("check_doc");
-        var check_intervenant = document.getElementById("check_ppl");
-        var check_session = document.getElementById("check_session");
-
-        var titre = document.getElementById("input_title");
-        var descrip = document.getElementById("text_area");
-        var docs = document.getElementById("fileupload");
-        var intervenant = document.getElementById("liste_intervenants");
-        var session = document.getElementById("liste_sessions");
-        var count = 0;
-
-        titre.addEventListener('change', function () {
-            var titreValide = titre.checkValidity();
-
-            if (titreValide) {
-                check_titre.hidden = false;
-                if (check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden ==
-                    false && check_docs.hidden == false) {
-                    bouton = document.getElementById("submit_button");
-                    bouton.disabled = false;
-                }
-            } else {
-                check_titre.hidden = true;
-            }
-        });
-
-        descrip.addEventListener('change', function () {
-            var descripValide = descrip.checkValidity();
-
-            if (descripValide) {
-                check_descrip.hidden = false;
-            } else {
-                check_descrip.hidden = true;
-            }
-        });
-        docs.addEventListener('input', function () {
-            var docsValide = docs.checkValidity();
-
-            if (docsValide) {
-                check_docs.hidden = false;
-            } else {
-                check_docs.hidden = true;
-            }
-        });
-        intervenant.addEventListener('click', function () {
-            var listValues = intervenant.value;
-
-            if (intervenant.value[0] != 0) {
-                check_intervenant.hidden = false;
-                console.log(intervenant.value[0])
-                if (check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden ==
-                    false && check_docs.hidden == false) {
-                    bouton = document.getElementById("submit_button");
-                    bouton.disabled = false
-                }
-            } else {
-                check_intervenant.hidden = true;
-            }
-        });
-        session.addEventListener('click', function () {
-            var listValues = session.value;
-
-            if (session.value[0] != 0) {
-                check_session.hidden = false;
-                if (check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden ==
-                    false && check_docs.hidden == false) {
-                    bouton = document.getElementById("submit_button");
-                    bouton.disabled = false;
-                }
-            } else {
-                check_session.hidden = true;
-            }
-        });
-
-        console.log(count)
-
-        if (check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden == false &&
-            check_docs.hidden == false) {
-            bouton = document.getElementById("submit_button");
-            bouton.disabled = false
-        }
-    </script>
-
 </body>
-
+<script src="./Javascript/coches_vertes.js"></script>
 </html>

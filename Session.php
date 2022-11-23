@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
-<?php
+<!-- <?php
 require "database.php";
 // On recherche si il y a une valeur puis on ajoute pour tant, le nombre de fichier session à créer
 if(!empty($_POST)) {
@@ -30,7 +30,7 @@ if(!empty($_POST)) {
             $req->execute([date("Y-m-d H:i:s")]);
             if(file_exists("Session/Session_$i")){
     
-            } else  {
+            } else {
                 mkdir("Session/Session_$i");
             }
         }
@@ -40,30 +40,150 @@ if(!empty($_POST)) {
 }
 
 
-?>
+?> -->
+<?php
+    //on va chercher le PDO
+    //parametres de connexion de la BDD
+    require "database.php";
 
+    //test si les champs sont vides
+    if(!empty($_POST)){
+
+        //on va chercher les champs pour voir combien faut en créer
+        $jour = $_POST['jour'];
+        $salle = $_POST['salle'];
+        $session = $_POST['session'];
+        
+        //on va chercher les titres POTENTIELS de la table jour
+        $requete = $pdo->prepare('SELECT titre FROM jour;');
+        $requete->execute(['']);
+        $exists = $requete->fetchColumn();
+
+        //on verifie si la BDD est vide ou non
+        if($exists == false){
+
+            for($i = 1; $i <= $jour; $i++){
+                //on déclare le nom pour plus de simpliciter avec la requete
+                $jour_choisit = "Jour_$i";
+                //on insere les valeurs, une à la fois
+                $requete = $pdo->prepare("INSERT INTO jour (titre) VALUES (?);");
+                $requete->execute([$jour_choisit]);
+                
+                if(!file_exists("Jour/Jour_$i")){
+                    //on crée le dossier pour y ranger les données
+                    // mkdir("Jour/Jour_$i");
+                }
+            }
+        }else{
+            //On prend le nombre dans le titre qui existe
+            //puis on l'explose pour MAJ notre $i
+            $variable = explode("_", $exists);
+            $i = 1 + intval($variable[1]);//on recupere le chiffre dans le nom
+
+            //on boucle pour créer une ligne par une ligne dans la BDD
+            for($j = 0; $j < $jour; $j++){
+                //on déclare le nom pour plus de simpliciter avec la requete
+                $addition = $i + $j;
+                $jour_choisit = "Jour_$addition";
+                //on insere les valeurs, une à la fois
+                $requete = $pdo->prepare("INSERT INTO jour (titre) VALUES (?);");
+                $requete->execute([$jour_choisit]);
+                
+                if(!file_exists("Jour/Jour_$i")){
+                    //on crée le dossier pour y ranger les données
+                    // mkdir("Jour/Jour_$i");
+                }
+            }
+        }
+        
+
+    }
+?>
 <body>
     <div id="forms">
-            <form action="" method="post" enctype="multipart/form-data" class="form-example">
+        <form action="" method="post" enctype="multipart/form-data" class="form-example">
             <div class="head_box">
                 <div class="accueil">
                     <!--Lien peut etre à changer pour rediriger vers le menu-->
-                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;" src="images/burger.png" id="accueil" width="45px" height="45px"></a>
+                    <a href="menu.php" style="width:100px;"><img style="display:block;margin:auto;"
+                            src="images/burger.png" id="accueil" width="45px" height="45px"></a>
                 </div>
                 <div class="titre">
-                    <h1>Session</h1>
+                    <h1>Gestionnaire de sessions</h1>
                 </div>
             </div>
-                <div id="big_box">
-                    <div id="medium_box">
-                        <div id="title">
-                            <label for="name">
-                                <h2>Nombre de session à créer</h2>
+            <div id="big_box">
+                <div id="medium_box_session">
+                    <div id="gestion_session">
+
+                        <div class="title">
+                            <label class="name">
+                                <h2>Jour(s)</h2>
                             </label>
-                            <input type="number" min="1" value="1" name="session"
-                                id="input_title" required>
+                            <div class="ajouter_session">
+                                <span>Ajouter</span>
+                                <input type="number" min="0" value="0" name="jour" id="input_title" required>
+                                <span>jour(s)</span>
+                                <button class="ajouter_element" type="submit">+</button>
+                            </div>
                         </div>
-                        <table>
+
+                        <div class="title">
+                            <label class="name">
+                                <h2>Salle(s)</h2>
+                            </label>
+                            <div class="ajouter_session">
+                                <span>Ajouter</span>
+                                <input type="number" min="0" value="0" name="salle" id="input_title" required>
+                                <span>salle(s)</span>
+                                <button class="ajouter_element" type="submit">+</button>
+                            </div>
+                        </div>
+
+                        <div class="title">
+                            <label class="name">
+                                <h2>Session(s)</h2>
+                            </label>
+                            <div class="ajouter_session">
+                                <span>Ajouter</span>
+                                <input type="number" min="0" value="0" name="session" id="input_title" required>
+                                <span>session(s)</span>
+                                <button class="ajouter_element" type="submit">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="gestion_elements">
+                        <div class="element">
+                            <label class="name">
+                                <h2>Nombre de jour(s)</h2>
+                            </label>
+                            <!-- Remplir les tables ici bas -->
+                            <table>
+
+                            </table>
+                        </div>
+
+                        <div class="element">
+                            <label class="name">
+                                <h2>Salle(s)</h2>
+                            </label>
+                            <table>
+                                
+                            </table>
+                        </div>
+
+                        <div class="element">
+                            <label class="name">
+                                <h2>Session(s) de la salle INPUT PHP</h2>
+                            </label>
+                            <table>
+                                
+                            </table>
+                        </div>
+
+                    </div>
+                    <!-- Faire des changements drastiques -->
+                    <!-- <table>
                             <thead>
                                 <tr>
                                     <td>N°</td>
@@ -92,11 +212,10 @@ if(!empty($_POST)) {
 
                     DisplayList($id,$Titre_Session,$Created_at);
                     
-                    
                 }
                 
                 function displayList($id, $Titre_Session, $Created_at){
-                
+                // Certainement un soucis avec les lignes en dessous
                 echo"
                         <tbody>
                             <tr>
@@ -107,14 +226,15 @@ if(!empty($_POST)) {
                         </tbody>";
                 }
                 ?>
-                    </table>
-                    <input id="submit" type="submit">
-                    </div>                    
-                </div>   
-            </form>
+                    </table> -->
+                    <!-- <input id="submit" type="submit"> -->
+                </div>
+            </div>
+        </form>
     </div>
 
 
 
 </body>
+
 </html>

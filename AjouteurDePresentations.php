@@ -120,9 +120,7 @@ shell.SendKeys "{F5}"';
             </div>
             <div id="big_box">
 
-
                 <div id="medium_box">
-
 
                     <div id="title">
                         <label for="name">
@@ -134,7 +132,6 @@ shell.SendKeys "{F5}"';
                             <img id="check_title" hidden class="check" src="images/Green_check.svg.png" width="20px">
                         </div>
                     </div>
-
 
                     <div id="description">
                         <label for="name">
@@ -149,16 +146,14 @@ shell.SendKeys "{F5}"';
 
                 </div>
 
-
                 <div id="small_box">
                     <label>
                         <h2>Mes Documents</h2>
                     </label>
                     <div>
-                        <input type="file" id="fileupload" name="fileupload" value="importer un document">
+                        <input type="file" id="fileupload" name="fileupload" value="importer un document" required>
                         <img id="check_doc" class="check" hidden src="images/Green_check.svg.png" width="20px">
                     </div>
-
 
                     <label>
                         <h2>Intervenant</h2>
@@ -190,9 +185,7 @@ shell.SendKeys "{F5}"';
                         <img id="check_session" class="check" hidden src="images/Green_check.svg.png" width="20px">
                     </div>
 
-
                     <a id="submit" type="submit"><button class="enregistrer" disabled id="submit_button">Enregistrer</button></a>
-
 
                 </div>
                 
@@ -201,89 +194,5 @@ shell.SendKeys "{F5}"';
         </form>
     </div>
 </body>
-
+<script src="./Javascript/coches_vertes.js"></script>
 </html>
-<script>
-    var check_titre = document.getElementById("check_title");
-    var check_descrip = document.getElementById("check_descrip");
-    var check_docs = document.getElementById("check_doc");
-    var check_intervenant = document.getElementById("check_ppl");
-    var check_session = document.getElementById("check_session");
-
-    var titre = document.getElementById("input_title");
-    var descrip = document.getElementById("text_area");
-    var docs = document.getElementById("fileupload");
-    var intervenant = document.getElementById("liste_intervenants");
-    var session = document.getElementById("liste_sessions");
-    var submit = document.getElementById("submit_button");
-    var lien = document.getElementById("submit")
-
-    titre.addEventListener('change', function (){
-        var titreValide = titre.checkValidity();
-
-        if(titreValide){
-            check_titre.hidden = false;
-            if(check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden == false && check_docs.hidden == false){
-                bouton = document.getElementById("submit_button");
-                bouton.disabled = false;
-    }
-        }else{
-            check_titre.hidden = true;
-            bouton.disabled = true
-        }
-    });
-
-    descrip.addEventListener('change', function (){
-        var descripValide = descrip.checkValidity();
-
-        if(descripValide){
-            check_descrip.hidden = false;
-        }else{
-            check_descrip.hidden = true;
-        }
-    });
-    docs.addEventListener('input', function (){
-        var docsValide = docs.checkValidity();
-
-        if(docsValide){
-            check_docs.hidden = false;
-        }else{
-            check_docs.hidden = true;
-        }
-    });
-    intervenant.addEventListener('click', function (){
-        var listValues = intervenant.value;
-
-        if(intervenant.value[0] != 0){
-            check_intervenant.hidden = false;
-            console.log(intervenant.value[0])
-            if(check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden == false && check_docs.hidden == false){
-                bouton = document.getElementById("submit_button");
-                bouton.disabled = false
-    }
-        }else{
-            check_intervenant.hidden = true;
-            bouton.disabled = true
-        }
-    });
-    session.addEventListener('click', function (){
-        var listValues = session.value;
-
-        if(session.value[0] != 0){
-            check_session.hidden = false;
-            if(check_titre.hidden == false && check_session.hidden == false && check_intervenant.hidden == false && check_docs.hidden == false){
-                bouton = document.getElementById("submit_button");
-                bouton.disabled = false;
-    }
-        }else{
-            check_session.hidden = true;
-            bouton.disabled = true
-        }
-    });
-    // lien.addEventListener('mouseover', function(){
-    //     submit.style.boxShadow = "none"
-    //     if(submit.disabled == true){
-    //     }
-    // });
-
-</script>
