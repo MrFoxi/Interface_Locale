@@ -52,13 +52,15 @@ if(!empty($_POST)) {
         //on va chercher les champs pour voir combien faut en créer
         $jour = $_POST['jour'];
         $salle = $_POST['salle'];
-        $session = $_POST['session'];
+        //$session = $_POST['session'];
         
+        /////////////////////////////////////JOUR///////////////////////////////////////
         //on va chercher les titres POTENTIELS de la table jour
         $requete = $pdo->prepare('SELECT titre FROM jour;');
         $requete->execute(['']);
+        //on va chercher tous les noms des jours
         $exists = $requete->fetchColumn();
-
+        
         //on verifie si la BDD est vide ou non
         if($exists == false){
 
@@ -82,9 +84,30 @@ if(!empty($_POST)) {
 
             //on boucle pour créer une ligne par une ligne dans la BDD
             for($j = 0; $j < $jour; $j++){
+
+                //on va chercher les 
+                $requete_titres_salles = $pdo->prepare('SELECT DISTINCT titre FROM salle;');
+                $requete_titres_salles->execute(['']);
+                $liste_titres_salles = $requete_titres_salles->fetchAll(PDO::FETCH_COLUMN);
+                // var_export($liste_titres_salles);
+                //on va chercher le plus gros id des jours pour l'inserer dans salle
+                //il existe pas donc faut le prédire
+                $requete_id_max = $pdo->prepare('SELECT max(id) FROM jour;');
+                $requete_id_max->execute(['']);
+                $id_max = $requete_id_max->fetchColumn();
+                $id_max = $id_max + 1;
+
+                //on va inserer les nouvelles salles du nouveau jour
+                foreach($liste_titres_salles as $titre_salle){
+                    // var_dump($titre_salle);
+                    $requete_inserer_salles = $pdo->prepare('INSERT INTO salle (titre, id_jour) VALUES (?, ?)');
+                    $requete_inserer_salles->execute([$titre_salle, $id_max]);
+                }
+
                 //on déclare le nom pour plus de simpliciter avec la requete
                 $addition = $i + $j;
                 $jour_choisit = "Jour_$addition";
+
                 //on insere les valeurs, une à la fois
                 $requete = $pdo->prepare("INSERT INTO jour (titre) VALUES (?);");
                 $requete->execute([$jour_choisit]);
@@ -95,9 +118,68 @@ if(!empty($_POST)) {
                 }
             }
         }
-        
+        /////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////SALLE///////////////////////////////////////
+        //on va chercher les titres POTENTIELS de la table jour
+        $requete = $pdo->prepare('SELECT titre FROM salle;');
+        $requete->execute(['']);
+        $exists = $requete->fetchColumn();
 
+        //on va chercher la liste des id de tous les jours présents dans la BDD
+        $requete_id_jours = $pdo->prepare('SELECT id FROM jour;');
+        $requete_id_jours->execute(['']);
+        $liste_id_jours = $requete_id_jours->fetchAll(PDO::FETCH_COLUMN);
+        
+        //on verifie si la BDD est vide ou non
+        if($exists == false){
+
+            foreach($liste_id_jours as $id_jour){
+                //conversion de l'id en int
+                intval($id_jour);
+
+                for($i = 1; $i <= $salle; $i++){
+                    $requete_creation_salle = $pdo->prepare('INSERT INTO salle (titre, id_jour) VALUES (?, ?);');
+                    $requete_creation_salle->execute(["Salle_$i", "$id_jour"]);
+                }
+            }
+            //petite condition sinon il rajoute une salle quand on rajoute un jour :=)
+        }else if($salle !=0){
+
+            //on va chercher tous les titres des salle pour avoir le plus grand chiffre et faire +1
+            $requete_titres_salles = $pdo->prepare('SELECT titre FROM salle;');
+            $requete_titres_salles->execute(['']);
+            $liste_titres_salles = $requete_titres_salles->fetchAll(PDO::FETCH_COLUMN);
+            $liste_chiffres_salles = array();
+
+            //var_dump($liste_titres_salles);
+
+            //on itere pour mettre a dans un array parce que explode prend que 1 argument string
+            foreach($liste_titres_salles as $titre_salle){
+
+                $variable = explode("_", $titre_salle);
+                //on prend juste le chiffre dans le titre
+                array_push($liste_chiffres_salles, $variable[1]);
+            }
+            $max = max($liste_chiffres_salles);
+            $max = $max + 1;//c'est de la merde
+            $salle = $salle + $max;
+            // var_dump($max, $salle);
+            $k = 1;
+            foreach($liste_id_jours as $id_jour){
+                //conversion de l'id en int
+                // echo "je passe $k";
+                $k++;
+                intval($id_jour);
+
+                $requete_creation_salle = $pdo->prepare('INSERT INTO salle (titre, id_jour) VALUES (?, ?);');
+                // echo "coucou$i";
+                $requete_creation_salle->execute(["Salle_$max", "$id_jour"]);
+                // for($i = 1; $i <= $salle; $i++){
+                // }
+            }
+        }
     }
+    /////////////////////////////////////////////////////////////////////////////////
 ?>
 <body>
     <div id="forms">
@@ -140,7 +222,7 @@ if(!empty($_POST)) {
                             </div>
                         </div>
 
-                        <div class="title">
+                        <!-- <div class="title">
                             <label class="name">
                                 <h2>Session(s)</h2>
                             </label>
@@ -150,7 +232,7 @@ if(!empty($_POST)) {
                                 <span>session(s)</span>
                                 <button class="ajouter_element" type="submit">+</button>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                     <div id="gestion_elements">
                         <div class="element">

@@ -145,7 +145,7 @@ shell.SendKeys "{F5}"';
                     <div id="title">
 
                         <label for="name">
-                            <h2>Titre de la présentation *</h2>
+                            <h2>Titre de la présentation</h2>
                         </label>
                         <input type="text" placeholder="Exemple : Caféine et corps humain." name="title"
                             value="<?=$title?>" id="input_title" required>
