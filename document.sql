@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : mer. 19 oct. 2022 à 14:55
+-- Généré le : jeu. 24 nov. 2022 à 16:31
 -- Version du serveur : 5.7.36
 -- Version de PHP : 7.4.26
 
@@ -38,17 +38,18 @@ CREATE TABLE IF NOT EXISTS `document` (
   `num_session` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `document`
 --
 
 INSERT INTO `document` (`id`, `titre`, `description`, `AncienNom`, `token_document`, `num_intervenant`, `num_session`, `created_at`) VALUES
-(1, 'on refait encore d\'autre test', 'on test les problÃ¨mes', 'truc de ouf.pptx', 'P3a7OPsGIpBk6dGHU2lrjU1B1CaK18RXoYf4Wsnd3Wnh7oRwv1RqIfNs9pH7.pptx', 3, 4, '2022-10-19 07:17:15'),
+(1, 'on refait encore d\'autre test', 'on test les problÃ¨mes', '.pptx', 'P3a7OPsGIpBk6dGHU2lrjU1B1CaK18RXoYf4Wsnd3Wnh7oRwv1RqIfNs9pH7.pptx', 3, 1, '2022-10-19 07:17:15'),
 (2, 'oidhksdq', 'dcnqs', 'compilation.pptx', 'KBF1zlzNbSTSEMRUkRWRE6qz3mlsusY1rMsz25ofNETscbUcoJdUyh87HLdN.pptx', 2, 3, '2022-10-19 08:01:35'),
 (3, 'dqsdqsz', '', 'compilation.pptx', 'D5t7jXebwm8kMPsqJKEkd1nysB8dCtpHWWOG9Z1N9yWeHiYHeUExgmFpFo1h.pptx', 2, 3, '2022-10-19 08:01:58'),
-(4, 'daqz', '', 'compilation.pptx', 'TlkjYATbNg0CSolFMim06fkaYbeYZxucrL1jYZfQWo2iOCXaCAlQOx5Drmgz.pptx', 1, 1, '2022-10-19 14:23:23');
+(4, 'daqz', '', 'compilation.pptx', 'TlkjYATbNg0CSolFMim06fkaYbeYZxucrL1jYZfQWo2iOCXaCAlQOx5Drmgz.pptx', 1, 1, '2022-10-19 14:23:23'),
+(5, 'Presentation ', 'Description', '.pptx', 'Ih2kjtTPy8x5ZjUyom8T6rYvncTGpsXbihLpk8FItke8DVksJ2pCnivwFfRo.pptx', 2, 1, '2022-11-24 14:08:21');
 
 -- --------------------------------------------------------
 
@@ -78,6 +79,19 @@ INSERT INTO `intervenant` (`id`, `nom`, `prenom`, `token_photo`, `created_at`) V
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `jour`
+--
+
+DROP TABLE IF EXISTS `jour`;
+CREATE TABLE IF NOT EXISTS `jour` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `titre` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=220 DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `lock_unlock`
 --
 
@@ -94,7 +108,21 @@ CREATE TABLE IF NOT EXISTS `lock_unlock` (
 --
 
 INSERT INTO `lock_unlock` (`id`, `cadenas`, `session`) VALUES
-(1, 0, 4);
+(1, 1, 4);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `salle`
+--
+
+DROP TABLE IF EXISTS `salle`;
+CREATE TABLE IF NOT EXISTS `salle` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_jour` int(11) NOT NULL,
+  `titre` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=215 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -105,23 +133,18 @@ INSERT INTO `lock_unlock` (`id`, `cadenas`, `session`) VALUES
 DROP TABLE IF EXISTS `session`;
 CREATE TABLE IF NOT EXISTS `session` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_salle` int(11) NOT NULL,
   `titre` varchar(255) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `session`
 --
 
-INSERT INTO `session` (`id`, `titre`, `created_at`) VALUES
-(1, 'Session 1', '2022-10-18 12:48:40'),
-(2, 'Session2', '2022-10-18 12:48:40'),
-(3, 'Session 3', '2022-10-18 12:48:40'),
-(4, 'Session 4 ', '2022-10-18 12:48:40'),
-(5, 'Session 5', '2022-10-18 12:48:40'),
-(6, 'Session 6', '2022-10-18 13:43:31'),
-(7, 'Session 7', '2022-10-18 13:53:36');
+INSERT INTO `session` (`id`, `id_salle`, `titre`, `created_at`) VALUES
+(1, 0, NULL, '2022-11-23 09:24:07');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
