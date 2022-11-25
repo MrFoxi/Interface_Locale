@@ -59,7 +59,14 @@ if(!empty($_POST)) {
         $requete = $pdo->prepare('SELECT titre FROM jour;');
         $requete->execute(['']);
         //on va chercher tous les noms des jours
-        $exists = $requete->fetchColumn();
+        $exists = $requete->fetchAll(PDO::FETCH_COLUMN);
+        // var_dump($exists);
+        $liste_jours = array();
+
+        foreach($exists as $valeur){
+            $numero = explode("_", $valeur);
+            array_push($liste_jours, $numero[1]); 
+        }
         
         //on verifie si la BDD est vide ou non
         if($exists == false){
@@ -79,11 +86,15 @@ if(!empty($_POST)) {
         }else{
             //On prend le nombre dans le titre qui existe
             //puis on l'explose pour MAJ notre $i
-            $variable = explode("_", $exists);
-            $i = 1 + intval($variable[1]);//on recupere le chiffre dans le nom
 
+            // $variable = explode("_", $exists);
+            // $i = 1 + intval($variable[1]);//on recupere le chiffre dans le nom
+            // var_dump($i);
+            //on prend le jour max et on l'additionne plus bas
+            $numero_jour = max($liste_jours);
+            var_dump($numero_jour);
             //on boucle pour créer une ligne par une ligne dans la BDD
-            for($j = 0; $j < $jour; $j++){
+            for($j = 1; $j <= $jour; $j++){
 
                 //on va chercher les 
                 $requete_titres_salles = $pdo->prepare('SELECT DISTINCT titre FROM salle;');
@@ -105,7 +116,7 @@ if(!empty($_POST)) {
                 }
 
                 //on déclare le nom pour plus de simpliciter avec la requete
-                $addition = $i + $j;
+                $addition = $numero_jour + $j;
                 $jour_choisit = "Jour_$addition";
 
                 //on insere les valeurs, une à la fois
@@ -161,7 +172,7 @@ if(!empty($_POST)) {
                 array_push($liste_chiffres_salles, $variable[1]);
             }
             $max = max($liste_chiffres_salles);
-            $max = $max + 1;//c'est de la merde
+            $max = $max + 1;
             $salle = $salle + $max;
             // var_dump($max, $salle);
             $k = 1;
