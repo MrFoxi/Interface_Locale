@@ -37,10 +37,6 @@ require "database.php";
         $cadenas_properties = 'fermer';
     }
 
-    /*
-        
-    */
-
         $host = 'localhost';
         $dbname = 'document';
         $username = 'root';
@@ -59,10 +55,12 @@ require "database.php";
         }catch (PDOException $e){
             echo $e->getMessage();
         }
+
         $req = $pdo->prepare('SELECT session FROM lock_unlock');
         $req->execute();
         $cadenas_session = $req->fetchColumn();
         $titre_session = "Veuillez choisir une session";
+        
         if(isset($_POST['session'])){
             $req = $pdo->prepare('SELECT titre FROM session WHERE id = ?');
             $req->execute([$_POST['session']]);
@@ -74,6 +72,33 @@ require "database.php";
             $titre_session = $req->fetchColumn();
         }
 
+        /**
+         * 
+         * 
+            REQUETES POUR CHOPER LES JOURS ET SALLES 
+            JUSTE POUR CHANGER LE LIEN DANS LE BOUTON TELECHARGER
+                                    😳
+         * 
+         * 
+         */
+
+        $requete_id_salle = $pdo->prepare('SELECT id_salle FROM session WHERE titre = ?;');
+        $requete_id_salle->execute([$titre_session]);
+        $id_salle = $requete_id_salle->fetchColumn();
+
+        $requete_nom_salle = $pdo->prepare('SELECT titre FROM salle WHERE id = ?;');
+        $requete_nom_salle->execute([$id_salle]);
+        $titre_salle = $requete_nom_salle->fetchColumn();
+
+        $requete_id_jour = $pdo->prepare('SELECT id_jour FROM salle WHERE id = ?;');
+        $requete_id_jour->execute([$id_salle]);
+        $id_jour = $requete_id_jour->fetchColumn();
+
+        $requete_nom_jour = $pdo->prepare('SELECT titre FROM jour WHERE id = ?;');
+        $requete_nom_jour->execute([$id_jour]);
+        $titre_jour = $requete_nom_jour->fetchColumn();
+
+        // var_dump($titre_jour);
         // if($titre_session == NULL) {
         //     $titre_session = "Veuillez choisir une session";
         // }f
@@ -111,7 +136,6 @@ require "database.php";
                 <div id="overlay"><img src="./images/red_arrow.png" width="200" height="200" frameBorder="0" class="giphy-embed" disabled id="fleche"/></div>
                 <ul id="presta_box">
                     <?php
-                        //venir modifier la requete pour y intégrer le nom de l'auteur
 
                         $req = $pdo->prepare('SELECT count(id) FROM document');
                         $req->execute();
@@ -127,6 +151,7 @@ require "database.php";
                             $req = $pdo->prepare("SELECT titre, description, AncienNom, token_document FROM document WHERE id = $i");
                             $req->execute();
                             $infos = $req->fetch(PDO::FETCH_ASSOC);
+                            // var_dump($infos);
 
                             $req = $pdo->prepare("SELECT num_intervenant FROM document WHERE id = $i");
                             $req->execute();
@@ -135,7 +160,9 @@ require "database.php";
                             $req = $pdo->prepare("SELECT nom, prenom, token_photo FROM intervenant WHERE id = ?");
                             $req->execute([$num_intervenant]);
                             $nom_prenom_intervenant = $req->fetch(PDO::FETCH_ASSOC);
-
+                            /** 
+                                SI PROBLEME D4ACCES AU VARIABLES EN DESSOUS => "TRUNCATE TABLE documents;" dans la BDD 
+                             */
                             $title = $infos['titre'];
                             $descrip = $infos['description'];
                             $AncienNom = $infos['AncienNom'];
@@ -144,14 +171,15 @@ require "database.php";
                             $prenom_intervenant = $nom_prenom_intervenant['prenom'];
                             $token_photo = $nom_prenom_intervenant['token_photo'];
 
-                            
+                            // var_dump($count);
+
                             if(isset($_POST['session'])){
                                 $req = $pdo->prepare('SELECT num_session FROM document WHERE id = ?');
                                 $req->execute([$i]);
                                 $num_session = $req->fetchColumn();
 
                                 if($_POST['session'] == $num_session){
-                                    displayList($title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties);
+                                    displayList($titre_session, $titre_jour, $titre_salle, $title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties);
                                 }
                             } else {
                                 
@@ -160,14 +188,14 @@ require "database.php";
                                 $num_session = $req->fetchColumn();
 
                                 if($cadenas_session == $num_session){
-                                    displayList($title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties);
+                                    displayList($titre_session, $titre_jour, $titre_salle, $title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties);
                                 }
                             }
                         }
 
                         //Affichage de la liste des présentations
                         //AJOUTER LA PHOTO DE PROFIL EN FONCTION DE LA PERSONNE
-                        function displayList($title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties){
+                        function displayList($titre_session, $titre_jour, $titre_salle, $title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties){
 
                             $token = explode('.', $token);
                             
@@ -190,7 +218,7 @@ require "database.php";
                                     echo "$AncienNom";
                                     echo "</h4>";
                                 echo '</div>';
-                                echo "<div data-modal-target='#modal' class='lien'><a href='Session/Session_$num_session/".$token[0].".bat'><button  class='btn-primary' type='button'>Télécharger</button></a></div>";
+                                echo "<div data-modal-target='#modal' class='lien'><a href='Jour/".$titre_jour."/".$titre_salle."/".$titre_session."/$token[0]".".bat'><button  class='btn-primary' type='button'>Télécharger</button></a></div>";
                                 if($cadenas_properties == 'ouvrir'){
                                     echo "<div id='bouton_editer' ><a href='Editer?=".$token[0].".".$token[1]."'><img style='width:50px;height:50px;' src='images/edit.png'/></a></div>";
                                 }
@@ -212,7 +240,7 @@ require "database.php";
                         présentation</a></h2>
                 <div class="choix_session">
                     <form method="post">
-                        <select name="session">
+                        <select class="select" name="session">
                             <option value="0">--Changer de session--</option>
                             <?php while($row = $session_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
                             <option name="session" value="<?= $row['id']?>">

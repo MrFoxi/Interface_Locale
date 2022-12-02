@@ -1,24 +1,57 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <title>Interface locale pour transfert de fichiers</title>
-    <meta charset="UTF-8">
-    <meta name="description" content="Plateforme de Diffusion streaming/replay">
-    <meta name="keywords" content="HTML, CSS, JavaScript, PHP, Bootstrap">
-    <meta name="auteurs" content="Xavier Crenn , Clément Perdrix">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> -->
-    <link rel="stylesheet" href="css/xavier_css.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
+    
+    <head>
+        <title>Interface locale pour transfert de fichiers</title>
+        <meta charset="UTF-8">
+        <meta name="description" content="Plateforme de Diffusion streaming/replay">
+        <meta name="keywords" content="HTML, CSS, JavaScript, PHP, Bootstrap">
+        <meta name="auteurs" content="Xavier Crenn , Clément Perdrix">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> -->
+        <link rel="stylesheet" href="css/xavier_css.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
+        <script src="./Javascript/coches_vertes.js" defer></script>
     
 </head>
 
 <body>
     <?php
     require './database.php';
+
+    if(!empty($_POST)){
+
+        $session = $_POST['session'];
+
+        // var_dump($session);
+
+        //On va chercher les id de salle et de jour pour choper les noms
+        $requete_salle_selectionne = $pdo->prepare('SELECT id_salle FROM session where id = ?;');
+        $requete_salle_selectionne->execute([$session]);
+        $id_salle_selectionnee = $requete_salle_selectionne->fetchAll(PDO::FETCH_COLUMN);
+
+        $requete_jour_selectionne = $pdo->prepare('SELECT id_jour FROM salle where id = ?;');
+        $requete_jour_selectionne->execute([$id_salle_selectionnee[0]]);
+        $id_jour_selectionne = $requete_jour_selectionne->fetchAll(PDO::FETCH_COLUMN);
+
+        // var_dump($id_jour_selectionne, intval($id_salle_selectionnee));
+
+        //Maintenant on peut choper les noms
+        $requete_nom_salle = $pdo->prepare('SELECT titre FROM salle WHERE id = ?;');
+        $requete_nom_salle->execute([intval($id_salle_selectionnee[0])]);
+        $nom_salle = $requete_nom_salle->fetchAll(PDO::FETCH_COLUMN);
+        
+        $requete_nom_jour = $pdo->prepare('SELECT titre FROM jour WHERE id = ?;');
+        $requete_nom_jour->execute([intval($id_jour_selectionne[0])]);
+        $nom_jour = $requete_nom_jour->fetchAll(PDO::FETCH_COLUMN);
+
+        $requete_nom_session = $pdo->prepare('SELECT titre FROM session WHERE id = ?;');
+        $requete_nom_session->execute([$session]);
+        $nom_session = $requete_nom_session->fetchColumn();
+        
+    }
 
     $host = 'localhost';
         $dbname = 'document';
@@ -73,58 +106,60 @@
     $nom_Intervenant = $nom_prenom_intervenant['nom'];
     $prenom_Intervenant = $nom_prenom_intervenant['prenom'];
 
+    
     //test si la variable est nulle
-        if(isset($_FILES['fileupload'])){
-            unlink("Session/Session_".$num_session."/$token_document");
-            $tmpName = $_FILES['fileupload']['tmp_name'];
-            $name = $_FILES['fileupload']['name'];
-            $size = $_FILES['fileupload']['size'];
-            $error = $_FILES['fileupload']['error'];
-            $_SESSION['flash']['success'] = 'Transfert vers le dossier local complété.';
-            //transfert de fichier
-            $token_document = explode('.', $token_document);
-            $test = explode('.' ,$name);
-            var_dump($test);
-            move_uploaded_file($tmpName, "Session/Session_".$_POST['session']."/".$token_document[0].".".$test[1]."");
-            echo "Session/Session_".$_POST['session']."/".$token_document[0].".".$test[1]."";
+    if(isset($_FILES['fileupload'])){
+        unlink("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document");
+        $tmpName = $_FILES['fileupload']['tmp_name'];
+        $name = $_FILES['fileupload']['name'];
+        $size = $_FILES['fileupload']['size'];
+        $error = $_FILES['fileupload']['error'];
+        $_SESSION['flash']['success'] = 'Transfert vers le dossier local complété.';
+        //transfert de fichier
+        $token_document = explode('.', $token_document);
+        $test = explode('.' ,$name);
+        // var_dump($token_document, $test);
+        // var_dump($test);
+        // move_uploaded_file($tmpName, "Session/Session_".$_POST['session']."/".$token_document[0].".".$test[1]."");
+        move_uploaded_file($tmpName, "Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].".$test[1]."");
+        // var_dump("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].".$test[1]."");
+        $lien = $token_document[0][0].".".$test[1];
 
-            $lien = $token_document[0].".".$test[1];
+        unlink("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/".$token_document[0].".bat");
+        $bathfilebat = fopen("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].bat","w");
+        $txtbat = "start C:/wamp64/www/InterfaceLocale/Attente_AVEF.mp4
+                    start C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].vbs
+                    timeout 7
+                    TASKKILL /f /im Video.UI.exe ";
+        fwrite($bathfilebat, $txtbat);
+        fclose($bathfilebat);
 
-            unlink("Session/Session_$num_session/".$token_document[0].".bat");
-            $bathfilebat = fopen("Session/Session_".$_POST['session']."/".$token_document[0].".bat","w");
-            $txtbat = "start C:/wamp64/www/InterfaceLocale/Attente_AVEF.mp4
-start C:/wamp64/www/InterfaceLocale/Session/Session_".$_POST['session']."/".$token_document[0].".vbs
-timeout 7
-TASKKILL /f /im Video.UI.exe ";
-            fwrite($bathfilebat, $txtbat);
-            fclose($bathfilebat);
+        unlink("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/".$token_document[0].".vbs");
+        $bathfilevbs = fopen("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].vbs","w");
+        $txtvbs = 'set shell = CreateObject("WScript.Shell")
+                    shell.SendKeys "^{PGUP}"
+                    WScript.Sleep 1000
+                    shell.SendKeys "{ESC}"
+                    shell.Run("C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle[0]/$nom_session'.'/'.$lien.'")
+                    WScript.Sleep 7000
+                    shell.SendKeys "{F5}"';
+        fwrite($bathfilevbs, $txtvbs);
+        fclose($bathfilevbs);
+        
+        // var_dump($_FILES['fileupload']);
+        // var_dump($_POST['intervenant']);
 
-            unlink("Session/Session_$num_session/".$token_document[0].".vbs");
-            $bathfilevbs = fopen("Session/Session_".$_POST['session']."/".$token_document[0].".vbs","w");
-            $txtvbs = 'set shell = CreateObject("WScript.Shell")
-shell.SendKeys "^{PGUP}"
-WScript.Sleep 1000
-shell.SendKeys "{ESC}"
-shell.Run("C:/wamp64/www/InterfaceLocale/Session/Session_'.$_POST['session'].'/'.$lien.'")
-WScript.Sleep 7000
-shell.SendKeys "{F5}"';
-            fwrite($bathfilevbs, $txtvbs);
-            fclose($bathfilevbs);
-            
-            var_dump($_FILES['fileupload']);
-            var_dump($_POST['intervenant']);
+        if(isset($_POST['text_area'])){
 
-            if(isset($_POST['text_area'])){
-
-                $new_description = $_POST['text_area'];
-                $new_titre = $_POST['title'];
-                //rajouter le nom de la connexion utilisateur pour le "author"
-                $req = $pdo ->prepare("UPDATE document SET titre = ?, description =  ?, AncienNom = ?, token_document = ?, num_intervenant = ?, num_session = ? WHERE id = ?");
-                //faut mettre un tableau en params (1 argument seulement accepté)
-                $req->execute([$new_titre, $new_description, $name, $lien, $_POST['intervenant'], $_POST['session'], $id]);
-                header("location: ./Presentations.php");
-            }
+            $new_description = $_POST['text_area'];
+            $new_titre = $_POST['title'];
+            //rajouter le nom de la connexion utilisateur pour le "author"
+            $req = $pdo ->prepare("UPDATE document SET titre = ?, description =  ?, AncienNom = ?, token_document = ?, num_intervenant = ?, num_session = ? WHERE id = ?");
+            //faut mettre un tableau en params (1 argument seulement accepté)
+            $req->execute([$new_titre, $new_description, $name, $lien, $_POST['intervenant'], $_POST['session'], $id]);
+            header("location: ./Presentations.php");
         }
+    }
     ?>
     <div id="forms">
         <form action="" method="post" enctype="multipart/form-data" class="form-example">
@@ -176,7 +211,7 @@ shell.SendKeys "{F5}"';
                         <h2>Intervenant</h2>
                     </label>
                     <div>
-                        <select name="intervenant" required id="liste_intervenants">
+                        <select class="select" name="intervenant" required id="liste_intervenants">
                         <?php while($row = $intervenant_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
                                 <?php
                                     if($row['id'] == $num_intervenant) {
@@ -197,7 +232,7 @@ shell.SendKeys "{F5}"';
                         <h2>Session</h2>
                     </label>
                     <div>
-                        <select name="session" required id="liste_sessions">
+                        <select class="select" name="session" required id="liste_sessions">
                             <?php while($row = $session_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
                                 <?php
                                     if($row['id'] == $num_session) {
@@ -219,5 +254,4 @@ shell.SendKeys "{F5}"';
         </form>
     </div>
 </body>
-<script src="./Javascript/coches_vertes.js"></script>
 </html>

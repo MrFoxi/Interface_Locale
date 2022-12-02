@@ -46,7 +46,7 @@
                                     <a href="Ajout_Intervenant.php" id="menu_lien">AJOUTER UN INTERVENANT</a>
                                 </button>
                                 <button>
-                                    <a href="Session.php" id="menu_lien">AJOUTER UNE SESSION</a>
+                                    <a href="Session.php?jour=Jour_1&salle=Salle_1-Jour_1" id="menu_lien">AJOUTER UNE SESSION</a>
                                 </button>
                             </div>
                             

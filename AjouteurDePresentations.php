@@ -15,15 +15,60 @@
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
+
 <body>
     <?php
-    require_once './database.php';
-    function str_random($length) {
-        $alphabet = "0123456789azertyuiopqsdfghjklmwxcvbnAZERTYUIOPQSDFGHJKLMWXCVBN";
-        return substr(str_shuffle(str_repeat($alphabet, $length)), 0, $length);
-    }
+        require_once './database.php';
 
-    $host = 'localhost';
+        /**
+         * 
+            JE VAIS RANGER UN PEU 😦
+            REQUETES SQL POUR AVOIR LES JOURS SALLES ET SESSIONS CONCERNEES LORS DE L4ENREGISTREMENT
+
+         */
+
+        if(!empty($_POST)){
+
+            $session = $_POST['session'];
+
+            // var_dump($session);
+    
+            //On va chercher les id de salle et de jour pour choper les noms
+            $requete_salle_selectionne = $pdo->prepare('SELECT id_salle FROM session where id = ?;');
+            $requete_salle_selectionne->execute([$session]);
+            $id_salle_selectionnee = $requete_salle_selectionne->fetchAll(PDO::FETCH_COLUMN);
+    
+            $requete_jour_selectionne = $pdo->prepare('SELECT id_jour FROM salle where id = ?;');
+            $requete_jour_selectionne->execute([$id_salle_selectionnee[0]]);
+            $id_jour_selectionne = $requete_jour_selectionne->fetchAll(PDO::FETCH_COLUMN);
+    
+            // var_dump($id_jour_selectionne, intval($id_salle_selectionnee));
+    
+            //Maintenant on peut choper les noms
+            $requete_nom_salle = $pdo->prepare('SELECT titre FROM salle WHERE id = ?;');
+            $requete_nom_salle->execute([intval($id_salle_selectionnee[0])]);
+            $nom_salle = $requete_nom_salle->fetchAll(PDO::FETCH_COLUMN);
+            
+            $requete_nom_jour = $pdo->prepare('SELECT titre FROM jour WHERE id = ?;');
+            $requete_nom_jour->execute([intval($id_jour_selectionne[0])]);
+            $nom_jour = $requete_nom_jour->fetchAll(PDO::FETCH_COLUMN);
+
+            $requete_nom_session = $pdo->prepare('SELECT titre FROM session WHERE id = ?;');
+            $requete_nom_session->execute([$session]);
+            $nom_session = $requete_nom_session->fetchColumn();
+            
+        }
+        
+
+        // var_dump($nom_jour, $nom_salle);
+
+
+        function str_random($length) {
+            $alphabet = "0123456789azertyuiopqsdfghjklmwxcvbnAZERTYUIOPQSDFGHJKLMWXCVBN";
+            return substr(str_shuffle(str_repeat($alphabet, $length)), 0, $length);
+        }
+
+        $host = 'localhost';
         $dbname = 'document';
         $username = 'root';
         $password = '';
@@ -35,7 +80,7 @@
             $intervenant_stmt = $pdo->query($intervenant_sql);
             
             if($intervenant_stmt === false){
-            die("Erreur");
+                die("Erreur");
             }
             
         }catch (PDOException $e){
@@ -47,7 +92,7 @@
             $session_stmt = $pdo->query($session_sql);
             
             if($session_stmt === false){
-            die("Erreur");
+                die("Erreur");
             }
             
         }catch (PDOException $e){
@@ -55,8 +100,8 @@
         }
 
 
-    $token_document = str_random(60);
-    //test si la variable est nulle
+        $token_document = str_random(60);
+        //test si la variable est nulle
         if(isset($_FILES['fileupload'])){
             $tmpName = $_FILES['fileupload']['tmp_name'];
             $name = $_FILES['fileupload']['name'];
@@ -65,35 +110,36 @@
             $_SESSION['flash']['success'] = 'Transfert vers le dossier local complété.';
             //transfert de fichier
             $test = explode('.' ,$name);
-            var_dump($test);
-            echo "Session/Session_".$_POST['session']."/$token_document.".$test[1]."";
-            move_uploaded_file($tmpName, "Session/Session_".$_POST['session']."/$token_document.".$test[1]."");
+            // var_dump($test);
+            // echo "Session/Session_".$_POST['session']."/$token_document.".$test[1]."";
+            // echo "Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/token_document.".$test[1]."";
+            move_uploaded_file($tmpName, "Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document.".$test[1]."");
 
-            $bathfilebat = fopen("Session/Session_".$_POST['session']."/$token_document.bat","w");
+            $bathfilebat = fopen("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document.bat","w");
             $txtbat = "start C:/wamp64/www/InterfaceLocale/Attente_AVEF.mp4
-start C:/wamp64/www/InterfaceLocale/Session/Session_".$_POST['session']."/$token_document.vbs
-timeout 7
-TASKKILL /f /im Video.UI.exe ";
+                        start C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document.vbs
+                        timeout 7
+                        TASKKILL /f /im Video.UI.exe ";
             fwrite($bathfilebat, $txtbat);
             fclose($bathfilebat);
 
             $lien = "$token_document.".$test[1]."";
 
-            $bathfilevbs = fopen("Session/Session_".$_POST['session']."/$token_document.vbs","w");
+            $bathfilevbs = fopen("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document.vbs","w");
             $txtvbs = 'set shell = CreateObject("WScript.Shell")
-shell.SendKeys "^{PGUP}"
-WScript.Sleep 1000
-shell.SendKeys "{ESC}"
-shell.Run("C:/wamp64/www/InterfaceLocale/Session/Session_'.$_POST['session'].'/'.$lien.'")
-WScript.Sleep 7000
-shell.SendKeys "{F5}"';
+                        shell.SendKeys "^{PGUP}"
+                        WScript.Sleep 1000
+                        shell.SendKeys "{ESC}"
+                        shell.Run("C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle[0]/$nom_session'.'/'.$lien.'")
+                        WScript.Sleep 7000
+                        shell.SendKeys "{F5}"';
             fwrite($bathfilevbs, $txtvbs);
             fclose($bathfilevbs);
             
 
 
-            var_dump($_FILES['fileupload']);
-            var_dump($_POST['intervenant']);
+            // var_dump($_FILES['fileupload']);
+            // var_dump($_POST['intervenant']);
 
             if(isset($_POST['text_area'])){
 
@@ -159,7 +205,7 @@ shell.SendKeys "{F5}"';
                         <h2>Intervenant</h2>
                     </label>
                     <div>
-                        <select name="intervenant" required id="liste_intervenants">
+                        <select class="select" name="intervenant" required id="liste_intervenants">
                             <option value="0" id="option">--Veuillez choisir un Intervenant--</option>
                             <?php while($row = $intervenant_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
                                 <option name="intervenant" value="<?= $row['id']?>">
@@ -174,7 +220,7 @@ shell.SendKeys "{F5}"';
                         <h2>Session</h2>
                     </label>
                     <div>
-                        <select name="session" required id="liste_sessions">
+                        <select class="select" name="session" required id="liste_sessions">
                             <option value="0">--Veuillez choisir une session--</option>
                             <?php while($row = $session_stmt->fetch(PDO::FETCH_ASSOC)) : ?>
                                 <option name="session" value="<?= $row['id']?>">
