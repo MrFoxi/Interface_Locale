@@ -17,93 +17,46 @@
 
 </head>
 <?php
-
-/*
-    Appel de la Base de Données
-*/
-
-require "database.php";
-
+    require "database.php";
+    require "./Controller/PHP/requetesSQL.php";
+    require "./Controller/config/config.php";
     /*
-        On vient chercher si le cadenas est ouvert ou fermer enregistré dans la base de données
-        Puis on associe si il est ouvert ou fermé à $cadenas_properties
+        On vient chercher si le cadenas est ouvert ou fermé enregistré dans la base de données
+        Puis on associe son status à $cadenas_properties
     */
-    $req = $pdo->prepare('SELECT cadenas FROM lock_unlock');
-    $req->execute();
-    $cadenas = $req->fetchColumn();
+    $cadenas = cadenasStatus();
     if($cadenas == true) {
         $cadenas_properties = 'ouvrir';
     } else {
         $cadenas_properties = 'fermer';
     }
-
-        $host = 'localhost';
-        $dbname = 'document';
-        $username = 'root';
-        $password = '';
-        $dsn = "mysql:host=$host;dbname=$dbname"; 
-        $session_sql = "SELECT id, titre FROM session";
-
         try{
-            $pdo = new PDO($dsn, $username, $password);
-            $session_stmt = $pdo->query($session_sql);
-            
+            // Variables présentes dans le fichier de config
+            $session_stmt = sessionValide($dsn, $username, $password, $session_sql);
             if($session_stmt === false){
-            die("Erreur");
+                die("Erreur");
             }
-            
         }catch (PDOException $e){
             echo $e->getMessage();
         }
-
-        $req = $pdo->prepare('SELECT session FROM lock_unlock');
-        $req->execute();
-        $cadenas_session = $req->fetchColumn();
+        $cadenas_session = sessionStatus();
         $titre_session = "Veuillez choisir une session";
-        
-        if(isset($_POST['session'])){
-            $req = $pdo->prepare('SELECT titre FROM session WHERE id = ?');
-            $req->execute([$_POST['session']]);
-            $titre_session = $req->fetchColumn();
-            
-        } else {
-            $req = $pdo->prepare('SELECT titre FROM session WHERE id = ?');
-            $req->execute([$cadenas_session]);
-            $titre_session = $req->fetchColumn();
-        }
 
+        if(isset($_POST['session'])){
+            $titre_session = titreSession_Id($_POST['session']);
+        } else {
+            $titre_session = titreSession_Id($cadenas_session);
+        }
         /**
-         * 
-         * 
             REQUETES POUR CHOPER LES JOURS ET SALLES 
             JUSTE POUR CHANGER LE LIEN DANS LE BOUTON TELECHARGER
                                     😳
-         * 
-         * 
          */
-
-        $requete_id_salle = $pdo->prepare('SELECT id_salle FROM session WHERE titre = ?;');
-        $requete_id_salle->execute([$titre_session]);
-        $id_salle = $requete_id_salle->fetchColumn();
-
-        $requete_nom_salle = $pdo->prepare('SELECT titre FROM salle WHERE id = ?;');
-        $requete_nom_salle->execute([$id_salle]);
-        $titre_salle = $requete_nom_salle->fetchColumn();
-
-        $requete_id_jour = $pdo->prepare('SELECT id_jour FROM salle WHERE id = ?;');
-        $requete_id_jour->execute([$id_salle]);
-        $id_jour = $requete_id_jour->fetchColumn();
-
-        $requete_nom_jour = $pdo->prepare('SELECT titre FROM jour WHERE id = ?;');
-        $requete_nom_jour->execute([$id_jour]);
-        $titre_jour = $requete_nom_jour->fetchColumn();
-
-        // var_dump($titre_jour);
-        // if($titre_session == NULL) {
-        //     $titre_session = "Veuillez choisir une session";
-        // }f
+        $id_salle = idSalleSession_Titre($titre_session);
+        $titre_salle = titreSalle_Id($id_salle);
+        $id_jour = idJourSalle_Id($id_salle);
+        $titre_jour = titreJour_Id($id_jour);
 ?>
-
 <body>
     <div id="forms">
         <form id="" action="" enctype="multipart/form-data" method="post" class="form-example">
@@ -136,32 +89,16 @@ require "database.php";
                 <div id="overlay"><img src="./images/red_arrow.png" width="200" height="200" frameBorder="0" class="giphy-embed" disabled id="fleche"/></div>
                 <ul id="presta_box">
                     <?php
-
-                        $req = $pdo->prepare('SELECT count(id) FROM document');
-                        $req->execute();
-                        $count = $req->fetchColumn();
-
-                        //va chercher le plus petit ID de la base, ensuite en itére
-                        $req = $pdo->prepare('SELECT id FROM document');
-                        $req->execute();
-                        $last_ID = $req->fetch();
+                        $count = countId();
+                        $last_ID = dernierId();// c'est juste le plus petit id
 
                         for($i = 1; $i <= $count ; $i++){
 
-                            $req = $pdo->prepare("SELECT titre, description, AncienNom, token_document FROM document WHERE id = $i");
-                            $req->execute();
-                            $infos = $req->fetch(PDO::FETCH_ASSOC);
-                            // var_dump($infos);
-
-                            $req = $pdo->prepare("SELECT num_intervenant FROM document WHERE id = $i");
-                            $req->execute();
-                            $num_intervenant = $req->fetchColumn();
-
-                            $req = $pdo->prepare("SELECT nom, prenom, token_photo FROM intervenant WHERE id = ?");
-                            $req->execute([$num_intervenant]);
-                            $nom_prenom_intervenant = $req->fetch(PDO::FETCH_ASSOC);
+                            $infos = tdatokenDocument_Id($i); // titre, description, ancien_nom, token_document
+                            $num_intervenant = numintervenantDocument_Id($i); // num_intervenant
+                            $nom_prenom_intervenant = nptIntervenant_Id($num_intervenant); // nom prenom token
                             /** 
-                                SI PROBLEME D4ACCES AU VARIABLES EN DESSOUS => "TRUNCATE TABLE documents;" dans la BDD 
+                                SI PROBLEME D4ACCES AUX VARIABLES EN DESSOUS => "TRUNCATE TABLE document;" dans la BDD 
                              */
                             $title = $infos['titre'];
                             $descrip = $infos['description'];
@@ -171,21 +108,15 @@ require "database.php";
                             $prenom_intervenant = $nom_prenom_intervenant['prenom'];
                             $token_photo = $nom_prenom_intervenant['token_photo'];
 
-                            // var_dump($count);
-
                             if(isset($_POST['session'])){
-                                $req = $pdo->prepare('SELECT num_session FROM document WHERE id = ?');
-                                $req->execute([$i]);
-                                $num_session = $req->fetchColumn();
+                                $num_session = numsessionDocument_Id($i);
 
                                 if($_POST['session'] == $num_session){
                                     displayList($titre_session, $titre_jour, $titre_salle, $title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties);
                                 }
                             } else {
                                 
-                                $req = $pdo->prepare('SELECT num_session FROM document WHERE id = ?');
-                                $req->execute([$i]);
-                                $num_session = $req->fetchColumn();
+                                $num_session = numsessionDocument_Id($i);
 
                                 if($cadenas_session == $num_session){
                                     displayList($titre_session, $titre_jour, $titre_salle, $title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties);
@@ -218,20 +149,13 @@ require "database.php";
                                     echo "$AncienNom";
                                     echo "</h4>";
                                 echo '</div>';
-                                echo "<div data-modal-target='#modal' class='lien'><a href='Jour/".$titre_jour."/".$titre_salle."/".$titre_session."/$token[0]".".bat'><button  class='btn-primary' type='button'>Télécharger</button></a></div>";
+                                echo "<div data-modal-target='#modal' class='lien'><a href='Jour/".$titre_jour[0]."/".$titre_salle."/".$titre_session."/$token[0]".".bat'><button  class='btn-primary' type='button'>Télécharger</button></a></div>";
                                 if($cadenas_properties == 'ouvrir'){
                                     echo "<div id='bouton_editer' ><a href='Editer?=".$token[0].".".$token[1]."'><img style='width:50px;height:50px;' src='images/edit.png'/></a></div>";
                                 }
-                            echo "</li>";
-                                                   
+                            echo "</li>";                     
                         }
-                        
-                        //echo'<li>';
-                        //echo '</li>';
-                        // 
-                        
                     ?>
-
                 </ul>
             </div>
             <?php if($cadenas_properties == 'ouvrir'): ?>
