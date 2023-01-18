@@ -99,6 +99,7 @@
                             $nom_prenom_intervenant = nptIntervenant_Id($num_intervenant); // nom prenom token
                             /** 
                                 SI PROBLEME D4ACCES AUX VARIABLES EN DESSOUS => "TRUNCATE TABLE document;" dans la BDD 
+                                suppr ID et le remettre
                              */
                             $title = $infos['titre'];
                             $descrip = $infos['description'];
@@ -160,8 +161,7 @@
             </div>
             <?php if($cadenas_properties == 'ouvrir'): ?>
             <div class="footer_box">
-                <h2><a href="AjouteurDePresentations.php" id="ajouter_presentation">Cliquez ici pour ajouter une
-                        présentation</a></h2>
+                <h2><a href="AjouteurDePresentations.php" id="ajouter_presentation">Cliquez ici pour ajouter une présentation</a></h2>
                 <div class="choix_session">
                     <form method="post">
                         <select class="select" name="session">

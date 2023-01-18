@@ -155,6 +155,24 @@
         $req->execute([$document]);
         return $req->fetchColumn();
     }
+    function idSalleSession_Id($session){
+        global $pdo;
+        $req = $pdo->prepare('SELECT id_salle FROM session WHERE id = ?');
+        $req->execute([$session]);
+        return $req->fetchAll(PDO::FETCH_COLUMN);
+    }
+    function idTitreDescTdnuminumsDocument_Td($td){
+        global $pdo;
+        $req = $pdo->prepare("SELECT id, titre, description, token_document, num_intervenant, num_session FROM document WHERE token_document = ?");
+        $req->execute([$td]);
+        return $req->fetch(PDO::FETCH_ASSOC);
+    }
+    function nomPrenomTpIntervenant_Id($num_intervenant){
+        global $pdo;
+        $req = $pdo->prepare("SELECT nom, prenom, token_photo FROM intervenant WHERE id = ?");
+        $req->execute([$num_intervenant]);
+        return $req->fetch(PDO::FETCH_ASSOC);
+    }
     /**
      * 
       INSERTION DANS LA BDD A PARTIR D'ICI
@@ -174,5 +192,16 @@
         global $pdo;
         $requete_titre_session = $pdo->prepare('INSERT INTO session (id_salle, titre, created_at) VALUES (?, ?, ?);');
         $requete_titre_session->execute([$salle, $titre, $date]);
+    }
+
+    /**
+     * 
+      MISE A JOUR (UPDATE) DANS LA BDD A PARTIR D'ICI
+     * 
+     */
+    function updateDocumentTitreDescAncienNomTdNumIntNumS_Id($titre, $description, $ancienNom, $td, $num_intervenant, $num_session, $id){
+        global $pdo;
+        $requete_update_document = $pdo->prepare("UPDATE document SET titre = ?, description = ?, AncienNom = ?, token_document = ?, num_intervenant = ?, num_session = ? WHERE id = ?;");
+        $requete_update_document->execute([$titre, $description, $ancienNom, $td, $num_intervenant, $num_session, $id]);
     }
 ?>

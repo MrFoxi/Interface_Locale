@@ -20,6 +20,7 @@
 <body>
     <?php
     require './database.php';
+    require 'Controller/PHP/requetesSQL.php';
 
     if(!empty($_POST)){
 
@@ -28,28 +29,15 @@
         // var_dump($session);
 
         //On va chercher les id de salle et de jour pour choper les noms
-        $requete_salle_selectionne = $pdo->prepare('SELECT id_salle FROM session where id = ?;');
-        $requete_salle_selectionne->execute([$session]);
-        $id_salle_selectionnee = $requete_salle_selectionne->fetchAll(PDO::FETCH_COLUMN);
-
-        $requete_jour_selectionne = $pdo->prepare('SELECT id_jour FROM salle where id = ?;');
-        $requete_jour_selectionne->execute([$id_salle_selectionnee[0]]);
-        $id_jour_selectionne = $requete_jour_selectionne->fetchAll(PDO::FETCH_COLUMN);
+        $id_salle_selectionnee = idSalleSession_Id($session);
+        $id_jour_selectionne = idJourSalle_Id($id_salle_selectionnee[0]);
 
         // var_dump($id_jour_selectionne, intval($id_salle_selectionnee));
 
         //Maintenant on peut choper les noms
-        $requete_nom_salle = $pdo->prepare('SELECT titre FROM salle WHERE id = ?;');
-        $requete_nom_salle->execute([intval($id_salle_selectionnee[0])]);
-        $nom_salle = $requete_nom_salle->fetchAll(PDO::FETCH_COLUMN);
-        
-        $requete_nom_jour = $pdo->prepare('SELECT titre FROM jour WHERE id = ?;');
-        $requete_nom_jour->execute([intval($id_jour_selectionne[0])]);
-        $nom_jour = $requete_nom_jour->fetchAll(PDO::FETCH_COLUMN);
-
-        $requete_nom_session = $pdo->prepare('SELECT titre FROM session WHERE id = ?;');
-        $requete_nom_session->execute([$session]);
-        $nom_session = $requete_nom_session->fetchColumn();
+        $nom_salle = titreSalle_Id($id_salle_selectionnee[0]);
+        $nom_jour = titreJour_Id($id_jour_selectionne[0]);
+        $nom_session = titreSession_Id($session);
         
     }
 
@@ -85,20 +73,15 @@
         }
 
     $token = explode('=', $_SERVER['REQUEST_URI']);
-    $req = $pdo->prepare("SELECT id, titre, description, token_document, num_intervenant, num_session FROM document WHERE token_document = ?");
-    $req->execute(["$token[1]"]);
-    $recuperation = $req->fetch(PDO::FETCH_ASSOC);
+    $recuperation = idTitreDescTdnuminumsDocument_Td($token[1]);
 
     $num_intervenant = $recuperation['num_intervenant'];
     $num_session = $recuperation['num_session'];
-    $req = $pdo->prepare("SELECT nom, prenom, token_photo FROM intervenant WHERE id = ?");
-    $req->execute([$num_intervenant]);
-    $nom_prenom_intervenant = $req->fetch(PDO::FETCH_ASSOC);
+    $nom_prenom_intervenant = nomPrenomTpIntervenant_Id($num_intervenant);
 
-    $req = $pdo->prepare("SELECT titre FROM session WHERE id = ?");
-    $req->execute([$num_session]);
-    $titre_session = $req->fetchColumn();
-    
+    $titre_session = titreSession_Id($num_session);
+
+    // attributs de la table document
     $id = $recuperation['id'];
     $title = $recuperation['titre'];
     $descrip = $recuperation['description'];
@@ -125,6 +108,7 @@
         // var_dump("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].".$test[1]."");
         $lien = $token_document[0][0].".".$test[1];
 
+        //Creation du fichier .bat
         unlink("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/".$token_document[0].".bat");
         $bathfilebat = fopen("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].bat","w");
         $txtbat = "start C:/wamp64/www/InterfaceLocale/Attente_AVEF.mp4
@@ -134,15 +118,16 @@
         fwrite($bathfilebat, $txtbat);
         fclose($bathfilebat);
 
+        //Creation du fichier .vbs
         unlink("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/".$token_document[0].".vbs");
         $bathfilevbs = fopen("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].vbs","w");
-        $txtvbs = 'set shell = CreateObject("WScript.Shell")
-                    shell.SendKeys "^{PGUP}"
+        $txtvbs = "set shell = CreateObject('WScript.Shell')
+                    shell.SendKeys '^{PGUP}'
                     WScript.Sleep 1000
-                    shell.SendKeys "{ESC}"
-                    shell.Run("C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle[0]/$nom_session'.'/'.$lien.'")
+                    shell.SendKeys '{ESC}'
+                    shell.Run('C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle[0]/$nom_session'.'/'.$lien.'')
                     WScript.Sleep 7000
-                    shell.SendKeys "{F5}"';
+                    shell.SendKeys '{F5}'";
         fwrite($bathfilevbs, $txtvbs);
         fclose($bathfilevbs);
         
@@ -154,9 +139,8 @@
             $new_description = $_POST['text_area'];
             $new_titre = $_POST['title'];
             //rajouter le nom de la connexion utilisateur pour le "author"
-            $req = $pdo ->prepare("UPDATE document SET titre = ?, description =  ?, AncienNom = ?, token_document = ?, num_intervenant = ?, num_session = ? WHERE id = ?");
-            //faut mettre un tableau en params (1 argument seulement accepté)
-            $req->execute([$new_titre, $new_description, $name, $lien, $_POST['intervenant'], $_POST['session'], $id]);
+            updateDocumentTitreDescAncienNomTdNumIntNumS_Id($new_titre, $new_description, $name, $lien, $_POST['intervenant'], $_POST['session'], $id);
+            //redirection vers la page de présentation
             header("location: ./Presentations.php");
         }
     }
@@ -227,7 +211,6 @@
                         </select>
                         <img id="check_ppl" class="check" src="images/Green_check.svg.png" width="20px">
                     </div>
-
                     <label>
                         <h2>Session</h2>
                     </label>
