@@ -1,4 +1,4 @@
-/*PAGE ACCUEIL*/
+PAGE ACCUEIL
 :root{
     --rouge : #ff2626;
     --vert : #28B825;
@@ -171,6 +171,15 @@ form{
     font-size: 1rem;
     padding-left: 1rem;
     padding-top: 0.4rem;
+
+}
+.liste_jours_salles_session > li{
+    background-color: burlywood;
+    height: 2rem;
+    font-size: 1rem;
+    /* padding-left: 1rem;
+    padding-top: 0.4rem; */
+    list-style: none;
 
 }
 #jour_selectionne{
@@ -706,14 +715,12 @@ body.hovered{
 
 }
 
-@keyframes sauter {
-    0%{
-        transform: translateY(-1rem) rotateZ(90deg);
-    }
-    50%{
-        transform: translateY(-4rem) rotateZ(90deg);
-    }
-    100%{
-        transform: translateY(-1rem) rotateZ(90deg);
-    }
+#Selection_Boutons_Session {
+    width: 85%;
+    height: 2rem;
+    text-align: center;
+}
+.Boutons_session {
+    width: 15%;
+    height: 2rem;
 }

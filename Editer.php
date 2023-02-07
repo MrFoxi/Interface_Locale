@@ -31,13 +31,17 @@
         //On va chercher les id de salle et de jour pour choper les noms
         $id_salle_selectionnee = idSalleSession_Id($session);
         $id_jour_selectionne = idJourSalle_Id($id_salle_selectionnee[0]);
+        
 
         // var_dump($id_jour_selectionne, intval($id_salle_selectionnee));
 
         //Maintenant on peut choper les noms
         $nom_salle = titreSalle_Id($id_salle_selectionnee[0]);
-        $nom_jour = titreJour_Id($id_jour_selectionne[0]);
+        
+        $nom_jour = titreJour_Id($id_jour_selectionne);
+        
         $nom_session = titreSession_Id($session);
+        
         
     }
 
@@ -88,49 +92,54 @@
     $token_document = $recuperation['token_document'];
     $nom_Intervenant = $nom_prenom_intervenant['nom'];
     $prenom_Intervenant = $nom_prenom_intervenant['prenom'];
-
+    var_dump($token_document);
     
     //test si la variable est nulle
     if(isset($_FILES['fileupload'])){
-        unlink("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document");
+        
+        unlink("Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document");
         $tmpName = $_FILES['fileupload']['tmp_name'];
         $name = $_FILES['fileupload']['name'];
         $size = $_FILES['fileupload']['size'];
         $error = $_FILES['fileupload']['error'];
+        var_dump($tmpName, $name);
         $_SESSION['flash']['success'] = 'Transfert vers le dossier local complété.';
         //transfert de fichier
+    
         $token_document = explode('.', $token_document);
-        $test = explode('.' ,$name);
+        $extension = explode('.' ,$name);
         // var_dump($token_document, $test);
         // var_dump($test);
         // move_uploaded_file($tmpName, "Session/Session_".$_POST['session']."/".$token_document[0].".".$test[1]."");
-        move_uploaded_file($tmpName, "Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].".$test[1]."");
+        move_uploaded_file($tmpName, "Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document[0].".$extension[1]."");
         // var_dump("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].".$test[1]."");
-        $lien = $token_document[0][0].".".$test[1];
+        
+        $lien = $token_document[0].".".$extension[1];
+        var_dump($lien);
 
         //Creation du fichier .bat
-        unlink("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/".$token_document[0].".bat");
-        $bathfilebat = fopen("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].bat","w");
+        unlink("Jour/$nom_jour[0]/$nom_salle/$nom_session/".$token_document[0].".bat");
+        $bathfilebat = fopen("Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document[0].bat","w");
         $txtbat = "start C:/wamp64/www/InterfaceLocale/Attente_AVEF.mp4
-                    start C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].vbs
+                    start C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document[0].vbs
                     timeout 7
                     TASKKILL /f /im Video.UI.exe ";
         fwrite($bathfilebat, $txtbat);
         fclose($bathfilebat);
 
         //Creation du fichier .vbs
-        unlink("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/".$token_document[0].".vbs");
-        $bathfilevbs = fopen("Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/$token_document[0].vbs","w");
+        unlink("Jour/$nom_jour[0]/$nom_salle/$nom_session/".$token_document[0].".vbs");
+        $bathfilevbs = fopen("Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document[0].vbs","w");
         $txtvbs = "set shell = CreateObject('WScript.Shell')
                     shell.SendKeys '^{PGUP}'
                     WScript.Sleep 1000
                     shell.SendKeys '{ESC}'
-                    shell.Run('C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle[0]/$nom_session'.'/'.$lien.'')
+                    shell.Run('C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle/$nom_session'.'/'.$lien.'')
                     WScript.Sleep 7000
                     shell.SendKeys '{F5}'";
         fwrite($bathfilevbs, $txtvbs);
         fclose($bathfilevbs);
-        
+        var_dump($token_document);
         // var_dump($_FILES['fileupload']);
         // var_dump($_POST['intervenant']);
 

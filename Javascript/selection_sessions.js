@@ -7,7 +7,8 @@ window.onload = () => {
 
     var ligne_selectionnee_jour = document.getElementById("liste_jours");
     var ligne_selectionnee_salle = document.getElementById("liste_salles");
-    ligne_selectionnee_jour.addEventListener('input', mise_a_jour);
+    console.log(ligne_selectionnee_salle);
+    ligne_selectionnee_jour.addEventListener('click', mise_a_jour);
     ligne_selectionnee_salle.addEventListener('input', mise_a_jour_salle);
 
     //met juste le jour dans l'url
@@ -44,6 +45,7 @@ window.onload = () => {
         console.log(select.value); 
         var url = `Session.php?jour=${jour}&salle=${select.value}`;
         window.location.href = url;
+        console.log(select, url);
     }
 
     

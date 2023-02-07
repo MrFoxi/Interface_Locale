@@ -157,6 +157,11 @@
                 <div class="titre">
                     <h1>Gestionnaire de sessions</h1>
                 </div>
+                <div class="Editer">
+                    <!--Lien peut etre à changer pour rediriger vers le menu-->
+                    <a href="Session_edit.php" style="width:100px;"><img style="display:block;margin:auto;"
+                        src="images/1827933.png" id="accueil" width="45px" height="45px"></a>
+                </div>
             </div>
             <div id="big_box">
                 <div id="medium_box_session">
@@ -216,12 +221,23 @@
                                 <select class="liste_jours_salles_session" id="liste_jours" multiple>
 
                                     <?php
-                                        //on rempli la liste avec les jours de la BDD
+                                    $jour_explose = explode("_", $jour_selectionne);
+                                    $jour_chiffre = $jour_explose[1];
+
+                                
+                                    //on rempli la liste avec les jours de la BDD
                                         $requete_titres_jours = titreJour();
                                         foreach($requete_titres_jours as $titre_jour){
+                                            
+                                            
+                                            if ($titre_jour == $jour_selectionne) {
+                                                echo"
+                                                    <option style='background-color:#0078d7; color:white; border: 2px dotted white' id='ligne_jour' class='ligne_selectionnable' value='$titre_jour'>$titre_jour</option>";
+                                            } else {
                                             echo"
                                                     <option id='ligne_jour' class='ligne_selectionnable' value='$titre_jour'>$titre_jour</option>";
-                                                }
+                                            }
+                                        }
                                     ?>
                                 </select>
                             </table>
@@ -242,9 +258,18 @@
                                         $id_jour = idJour_Titre($jour_chiffre);
                                         $requete_titres_salles = titreSalle_IdJour($id_jour[0]);
                                         foreach($requete_titres_salles as $titre_salle){
-                                            echo"
-                                                    <option id='ligne_salle' class='ligne_selectionnable' value='$titre_salle'>$titre_salle</option>";
-                                                }
+
+                                            $titre_salle_salle = explode("-", "$titre_salle");
+                                            
+                                            
+                                            if ($titre_salle == $salle_selectionnee) {
+                                                echo"
+                                                    <option style='background-color:#0078d7; color:white; border: 2px dotted white' id='ligne_jour' class='ligne_selectionnable' value='$titre_salle'>$titre_salle_salle[0]</option>";
+                                            } else {
+                                                echo"
+                                                    <option id='ligne_salle' class='ligne_selectionnable' value='$titre_salle'>$titre_salle_salle[0]</option>";
+                                            }
+                                        }
                                     ?>
                                 </select>
                             </table>
@@ -274,9 +299,8 @@
                                     if(!empty($liste_titres_sessions)){
                                         
                                         foreach($liste_titres_sessions as $titre){
-                                            echo"
-                                                <option>$titre<button type='submit'><i class='glyphicon glyphicon-remove' style='color: red;cursor: pointer;'></i></button></option>
-                                            ";
+                                                echo "<option>$titre</option>";
+                                            // echo "<li class='ligne_selectionnable' ><input id='Selection_Boutons_Session' class='Boutons_session' type='submit' value='$titre'/><input class='Boutons_session' type='submit' value='Supp'/></li>";
                                             //Faire plus de verifs pour eviter de créer 2 fois la meme session
                                             if(!file_exists("Jour/$jour_selectionne/$salle_selectionnee/$titre") && !empty($session)){
 
