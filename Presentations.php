@@ -96,7 +96,7 @@
 
                             $infos = tdatokenDocument_Id($i); // titre, description, ancien_nom, token_document
                             $num_intervenant = numintervenantDocument_Id($i); // num_intervenant
-                            $nom_prenom_intervenant = nptIntervenant_Id($num_intervenant); // nom prenom token
+                            $nom_prenom_intervenant = nomPrenomTpIntervenant_Id($num_intervenant); // nom prenom token
                             /** 
                                 SI PROBLEME D4ACCES AUX VARIABLES EN DESSOUS => "TRUNCATE TABLE document;" dans la BDD 
                                 suppr ID et le remettre

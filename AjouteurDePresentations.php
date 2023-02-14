@@ -93,34 +93,31 @@
             $size = $_FILES['fileupload']['size'];
             $error = $_FILES['fileupload']['error'];
             $_SESSION['flash']['success'] = 'Transfert vers le dossier local complété.';
+            $test = explode('.' ,$name);//extension du fichier importé
+            
             //transfert de fichier
-            $test = explode('.' ,$name);
-            // var_dump($test);
-            // echo "Session/Session_".$_POST['session']."/$token_document.".$test[1]."";
-            // echo "Jour/$nom_jour[0]/$nom_salle[0]/$nom_session/token_document.".$test[1]."";
             move_uploaded_file($tmpName, "Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document.".$test[1]);
-            echo "Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document.".$test[1];
 
-            $bathfilebat = fopen("Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document.bat","w");
-            $txtbat = "start C:/wamp64/www/InterfaceLocale/Attente_AVEF.mp4
-                        start C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document.vbs
-                        timeout 7
-                        TASKKILL /f /im Video.UI.exe ";
-            fwrite($bathfilebat, $txtbat);
-            fclose($bathfilebat);
+            // $bathfilebat = fopen("Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document.bat","w");
+            // $txtbat = "start C:/wamp64/www/InterfaceLocale/Attente_AVEF.mp4
+            //             start C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document.vbs
+            //             timeout 7
+            //             TASKKILL /f /im Video.UI.exe ";
+            // fwrite($bathfilebat, $txtbat);
+            // fclose($bathfilebat);
 
             $lien = "$token_document.".$test[1]."";
 
-            $bathfilevbs = fopen("Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document.vbs","w");
-            $txtvbs = 'set shell = CreateObject("WScript.Shell")
-                        shell.SendKeys "^{PGUP}"
-                        WScript.Sleep 1000
-                        shell.SendKeys "{ESC}"
-                        shell.Run("C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle/$nom_session'.'/'.$lien.'")
-                        WScript.Sleep 7000
-                        shell.SendKeys "{F5}"';
-            fwrite($bathfilevbs, $txtvbs);
-            fclose($bathfilevbs);
+            // $bathfilevbs = fopen("Jour/$nom_jour[0]/$nom_salle/$nom_session/$token_document.vbs","w");
+            // $txtvbs = 'set shell = CreateObject("WScript.Shell")
+            //             shell.SendKeys "^{PGUP}"
+            //             WScript.Sleep 1000
+            //             shell.SendKeys "{ESC}"
+            //             shell.Run("C:/wamp64/www/InterfaceLocale/Jour/$nom_jour[0]/$nom_salle/$nom_session'.'/'.$lien.'")
+            //             WScript.Sleep 7000
+            //             shell.SendKeys "{F5}"';
+            // fwrite($bathfilevbs, $txtvbs);
+            // fclose($bathfilevbs);
 
             // var_dump($_FILES['fileupload']);
             // var_dump($_POST['intervenant']);

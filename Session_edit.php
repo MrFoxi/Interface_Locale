@@ -6,17 +6,16 @@
     <meta charset="UTF-8">
     <meta name="description" content="Plateforme de Diffusion streaming/replay">
     <meta name="keywords" content="HTML, CSS, JavaScript, PHP, Bootstrap">
-    <meta name="auteurs" content="Xavier Crenn , Clément Perdrix">
+    <meta name="auteurs" content="Xavier Crenn, Clément Perdrix">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> -->
     <link rel="stylesheet" href="css/Xavier_css.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
     <script src="./Javascript/selection_sessions.js" defer></script>
     <!-- Import de JQuery  -->
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
-    <script src="./Javascript/JQuery.js" defer></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="./Javascript/JQuery.js" defer></script> -->
 </head>
 
 <?php
@@ -24,10 +23,7 @@
     require "Controller/PHP/requetesSQL.php";
 
     exec('START C:/"Program Files"/"Microsoft Office"/root/Office16/POWERPNT.EXE <erreur.txt', $var);
-
-
-    
-    //      
+  
     $req = $pdo->prepare("SELECT COUNT(id) FROM session");
     $req->execute();
     $count = $req->fetchColumn();
