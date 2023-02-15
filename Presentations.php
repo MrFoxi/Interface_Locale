@@ -57,36 +57,23 @@
         $id_jour = idJourSalle_Id($id_salle);
         $titre_jour = titreJour_Id($id_jour);
 ?>
+
 <body>
     <div id="forms">
         <form id="" action="" enctype="multipart/form-data" method="post" class="form-example">
             <div class="head_box">
                 <?php if($cadenas_properties == 'ouvrir'): ?>
-                    <div class="accueil">
-                        <!--Lien peut etre à changer pour rediriger vers le menu-->
-                        <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;"
-                        src="images/burger.png" id="accueil" width="45px" height="45px"></a>
-                    </div>
-                    <?php endif;?>
-                    <div class="titre">
-                        <h1><?=$titre_session;?></h1>
-                    </div>
+                <div class="accueil">
+                    <!--Lien peut etre à changer pour rediriger vers le menu-->
+                    <a href="menu.php" style="width: 100px;"><img style="display:block;margin:auto;"
+                            src="images/burger.png" id="accueil" width="45px" height="45px"></a>
                 </div>
+                <?php endif;?>
+                <div class="titre">
+                    <h1><?=$titre_session;?></h1>
+                </div>
+            </div>
             <div id="big_box">
-                <!-- Popup de passage en mode présentation -->
-                <div class="modal" id="modal">
-                    <div class="modal-header">
-                        <h2>Cliquez sur le fichier téléchargé pour lancer la présentation</h2>
-                        <!--&times pour faire la petite croix-->
-                        <a data-close-button class="close-button">&times;</a>
-                    </div>
-                    <div class="modal-body">
-                        <img src="./images/cursor.gif" width="200" height="200" frameBorder="0" class="giphy-embed"/>
-                    </div>
-                    
-                </div>
-                <!-- Fond pour la popup -->
-                <div id="overlay"><img src="./images/red_arrow.png" width="200" height="200" frameBorder="0" class="giphy-embed" disabled id="fleche"/></div>
                 <ul id="presta_box">
                     <?php
                         $count = countId();
@@ -149,19 +136,73 @@
                                     echo "<h4>";
                                     echo "$AncienNom";
                                     echo "</h4>";
-                                echo '</div>';
-                                echo "<div data-modal-target='#modal' class='lien'><a href='Jour/".$titre_jour[0]."/".$titre_salle."/".$titre_session."/$token[0]".".bat'><button  class='btn-primary' type='button'>Télécharger</button></a></div>";
+                                echo '</div>'; //Télécharger</button>
+                                echo "<div data-modal-target='#modal' class='lien'><a href=''><input name='button1' class='btn-primary' type='submit' value='Lancer'/></a></div>";
                                 if($cadenas_properties == 'ouvrir'){
                                     echo "<div id='bouton_editer' ><a href='Editer?=".$token[0].".".$token[1]."'><img style='width:50px;height:50px;' src='images/edit.png'/></a></div>";
                                 }
                             echo "</li>";                     
                         }
+                        /**
+                         LA FONCTION ouvrirPpt() DOIT AVOIR UN TUPLE (IPV4, LIEN DE FICHIER PPT) EN PARAMETRE
+                         */
+                        // if(array_key_exists('bouton_test', $_POST)){
+                        //     ouvrirPpt("192.168.0.160", "C:\\Users\\conta\\Desktop\\site\\presentation.pptx");
+                        // }
+                        
+                        // function ouvrirPpt($host, $ppt_file){
+                        //     // port de connexion
+                        //     $port = 5000;
+                        //     $message = "PC_Xavier ".$ppt_file;
+                        //     echo "Envoi du formulaire... ".$message. "\n";
+                        //     // creation du socket pour le dialogue client serveur
+                        //     $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die ("Erreur de creation du socket");
+                        //     // connexion au serveur
+                        //     $resultat = socket_connect($socket, $host, $port) or die ("Erreur de connexion au serveur");
+                        //     // ecriture au serveur
+                        //     socket_write($socket, $message, strlen($message)) or die ("Erreur d'ecriture au serveur");
+                        //     // lecture de la reponse du serveur
+                        //     $resultat = socket_read($socket, 1024) or die ("Erreur de lecture de la reponse du serveur");
+                        //     echo " => ".$resultat."\n";
+                        //     // fermeture du socket
+                        //     socket_close($socket);
+                        // }
+                        if(array_key_exists('button1', $_POST)) {
+                            open_ppt("192.168.0.160", "C:\\Users\\conta\\Desktop\\site\\presentation.pptx");
+                        }
+                        else if(array_key_exists('button2', $_POST)) {
+                            open_ppt("192.168.0.157", "C:\\dev\\test.pptx");
+                        }
+                      
+                        function open_ppt($host, $ppt_file) {
+                            $host    = $host;
+                            $port    = 5000;
+                            $message = "open_ppt@".$ppt_file; //C:\\dev\\test.pptx";  // "open_ppt@C:\\wamp64\\www\\test.pptx";
+                            // echo "open sent :".$message ."\n";
+                            // create socket
+                            $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die("Could not create socket\n");
+                            // connect to server
+                            $result = socket_connect($socket, $host, $port) or die("Could not connect to server\n");  
+                            // send string to server
+                            socket_write($socket, $message, strlen($message)) or die("Could not send data to server\n");
+                            // get server response
+                            $result = socket_read ($socket, 1024) or die("Could not read server response\n");
+                            // echo "  --->   :".$result."\n";
+                            // close socket
+                            socket_close($socket);
+                        }
                     ?>
                 </ul>
             </div>
+            <!-- <form method="post">
+                <input type="submit" name="button1" class="button" value="BTN1" />
+
+                <input type="submit" name="button2" class="button" value="BTN2" />
+            </form> -->
             <?php if($cadenas_properties == 'ouvrir'): ?>
             <div class="footer_box">
-                <h2><a href="AjouteurDePresentations.php" id="ajouter_presentation">Cliquez ici pour ajouter une présentation</a></h2>
+                <h2><a href="AjouteurDePresentations.php" id="ajouter_presentation">Cliquez ici pour ajouter une
+                        présentation</a></h2>
                 <div class="choix_session">
                     <form method="post">
                         <select class="select" name="session">
