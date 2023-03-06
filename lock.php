@@ -22,32 +22,31 @@
             <?php
                 require 'database.php';
 
-                $num_session = explode('?', $_SERVER['REQUEST_URI']);
-                $req = $pdo->prepare('UPDATE lock_unlock SET session = ?');
-                $req->execute([$num_session[1]]);
-
-
-                if(isset($_POST['cadenas'])){
-                    $cadenas = $_POST['cadenas'];
-                    $req = $pdo->prepare('UPDATE lock_unlock SET cadenas = ?');
-                    $req->execute([$cadenas]);
-                    header("Location: ./Presentations.php");
-                }
+                // On récupère la session dans l'url pour rediriger après le submit
+                $session = $_GET['session'];
                 
-                $req = $pdo->prepare('SELECT cadenas FROM lock_unlock');
-                $req->execute();
-                $status_checked = $req->fetchColumn();
-
                 $checked = '';
                 $unchecked = '';
+                // on récupère l'information sur le status du cadenas dans l'url 
+                $status_checked = $_GET['lock'];
 
+                // on garde en mémoire l'info pour selectionner par avance le status
+                // meilleur feedback utilisateur
                 if($status_checked == 1) {
                     $unchecked = 'checked';
                 } else {
                     $checked = 'checked';
                 }
+                // le bouton selectionné envoi sa valeur dans le POST pour changer l'état juste après
+                if(array_key_exists('cadenas', $_POST)){
+                    $etatCadenas = $_POST['cadenas'];
+                }
+                // si le bouton submit est appuyé on retourne sur la page présentation avec le status du cadenas changé
+                if(isset($_POST['cadenas'])){ 
+                    // echo "presentations.php?lock='$etatCadenas'";
+                    header("Location: presentations.php?lock=$etatCadenas&session=$session");
+                }
             ?>
-        
         <div id="big_box_unlock">
             <div>
                 <input style="cursor: pointer;top: 35.8%;left: 34.8%" value="1" class="btn-modif" type="radio" name="cadenas" <?= $unchecked?>>

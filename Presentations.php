@@ -13,49 +13,62 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
-    <script defer src="./Javascript/popup.js"></script>
-
+    <script defer src="./Javascript/gestion_cadenas.js"></script>
 </head>
 <?php
+    // Lien avec les autres pages pour les fonctions
     require "database.php";
     require "./Controller/PHP/requetesSQL.php";
     require "./Controller/config/config.php";
-    /*
-        On vient chercher si le cadenas est ouvert ou fermé enregistré dans la base de données
-        Puis on associe son status à $cadenas_properties
-    */
-    $cadenas = cadenasStatus();
-    if($cadenas == true) {
+    // On récupère l'id de la session envoyé dans le form et on la met dans l'url
+    if(array_key_exists('bouton_letsgo', $_POST)){
+        header("location: presentations.php?lock=1&session=".$_POST['session']."");
+    }
+    // On vient chercher si le cadenas est ouvert ou fermé à partir de l'url
+    // Puis on associe son status à $cadenas_properties
+
+    $cadenas_status = $_GET['lock'];
+    // On prend la session de base à partir de l'url
+    // C'est un ID
+    $session_de_base = $_GET['session'];
+
+    if($cadenas_status == 1) {
         $cadenas_properties = 'ouvrir';
     } else {
         $cadenas_properties = 'fermer';
     }
-        try{
-            // Variables présentes dans le fichier de config
-            $session_stmt = sessionValide($dsn, $username, $password, $session_sql);
-            if($session_stmt === false){
-                die("Erreur");
-            }
-        }catch (PDOException $e){
-            echo $e->getMessage();
+    try{
+        // Variables présentent dans le fichier de config
+        $session_stmt = sessionValide($dsn, $username, $password, $session_sql);
+        if($session_stmt === false){
+            die("Erreur, session invalide");
         }
-        $cadenas_session = sessionStatus();
-        $titre_session = "Veuillez choisir une session";
-
-        if(isset($_POST['session'])){
-            $titre_session = titreSession_Id($_POST['session']);
-        } else {
-            $titre_session = titreSession_Id($cadenas_session);
-        }
-        /**
-            REQUETES POUR CHOPER LES JOURS ET SALLES 
-            JUSTE POUR CHANGER LE LIEN DANS LE BOUTON TELECHARGER
-                                    😳
-         */
+    }catch (PDOException $e){
+        echo $e->getMessage();
+    }
+    $cadenas_session = sessionStatus();
+    $titre_session = "Veuillez choisir une session";
+    // Si le formualire de session est vide ou pas
+    if(isset($_POST['session'])){
+        $titre_session = titreSession_Id($_POST['session']);
         $id_salle = idSalleSession_Titre($titre_session);
-        $titre_salle = titreSalle_Id($id_salle);
-        $id_jour = idJourSalle_Id($id_salle);
-        $titre_jour = titreJour_Id($id_jour);
+        
+    } else if(!isset($_POST['session'])) {
+        $id_salle = $session_de_base;
+        $titre_session = titreSession_Id($id_salle);
+    } else {
+        $titre_session = "Veuillez choisir une session";
+    }
+    /**
+            REQUETES POUR CHOPER LES JOURS ET SALLES 
+        JUSTE POUR CHANGER LE LIEN DANS LE BOUTON TELECHARGER
+                            😳
+    */
+    $id_salle = $session_de_base;
+    $titre_salle = titreSalle_Id($id_salle);
+    $id_jour = idJourSalle_Id($id_salle);
+    $titre_jour = titreJour_Id($id_jour);
+    $titre_session = titreSession_Id($id_salle);
 ?>
 
 <body>
@@ -76,45 +89,42 @@
             <div id="big_box">
                 <ul id="presta_box">
                     <?php
+                        // On va déjà chercher la session dans l'url
+                        // On a besoin de savoir combien de presentations il y a dans une session d'ou countId()
                         $count = countId();
-                        $last_ID = dernierId();// c'est juste le plus petit id
+                        /**
+                          TROUVER UNE SOLUTION POUR N4IMPORTE QUEL ID DE DOCUMENT
+                          AFFICHE LES BONNES PRESTA AU BON ENDROIT
+                          ET TOUT CA EN FONCTION DE L4URL
+                         */
 
                         for($i = 1; $i <= $count ; $i++){
 
+                            // On met à jour lesinformations pour itérer sur les différentes présentations
                             $infos = tdatokenDocument_Id($i); // titre, description, ancien_nom, token_document
                             $num_intervenant = numintervenantDocument_Id($i); // num_intervenant
                             $nom_prenom_intervenant = nomPrenomTpIntervenant_Id($num_intervenant); // nom prenom token
-                            /** 
-                                SI PROBLEME D4ACCES AUX VARIABLES EN DESSOUS => "TRUNCATE TABLE document;" dans la BDD 
-                                suppr ID et le remettre
-                             */
+                            $session_du_document = numsessionDocument_Id($i);
+    
                             $title = $infos['titre'];
                             $descrip = $infos['description'];
                             $AncienNom = $infos['AncienNom'];
                             $token = $infos['token_document'];
                             $nom_intervenant = $nom_prenom_intervenant['nom'];
+                            //on met le numero de session juste pour afficher la page de base, grâce à session de base
+                            // $num_session = $session_de_base;
                             $prenom_intervenant = $nom_prenom_intervenant['prenom'];
                             $token_photo = $nom_prenom_intervenant['token_photo'];
 
-                            if(isset($_POST['session'])){
-                                $num_session = numsessionDocument_Id($i);
+                            // Verification de l'appartenence du document à la bonne session (actuelle)
+                            if($session_de_base == $session_du_document){
 
-                                if($_POST['session'] == $num_session){
-                                    displayList($titre_session, $titre_jour, $titre_salle, $title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties);
-                                }
-                            } else {
-                                
-                                $num_session = numsessionDocument_Id($i);
-
-                                if($cadenas_session == $num_session){
-                                    displayList($titre_session, $titre_jour, $titre_salle, $title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties);
-                                }
+                                displayList($title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $cadenas_properties, $session_de_base);                            
                             }
                         }
-
                         //Affichage de la liste des présentations
                         //AJOUTER LA PHOTO DE PROFIL EN FONCTION DE LA PERSONNE
-                        function displayList($titre_session, $titre_jour, $titre_salle, $title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $num_session, $cadenas_properties){
+                        function displayList($title, $descrip, $AncienNom, $token, $nom_intervenant, $prenom_intervenant, $token_photo, $cadenas_properties){
 
                             $token = explode('.', $token);
                             
@@ -146,29 +156,8 @@
                         /**
                          LA FONCTION ouvrirPpt() DOIT AVOIR UN TUPLE (IPV4, LIEN DE FICHIER PPT) EN PARAMETRE
                          */
-                        // if(array_key_exists('bouton_test', $_POST)){
-                        //     ouvrirPpt("192.168.0.160", "C:\\Users\\conta\\Desktop\\site\\presentation.pptx");
-                        // }
-                        
-                        // function ouvrirPpt($host, $ppt_file){
-                        //     // port de connexion
-                        //     $port = 5000;
-                        //     $message = "PC_Xavier ".$ppt_file;
-                        //     echo "Envoi du formulaire... ".$message. "\n";
-                        //     // creation du socket pour le dialogue client serveur
-                        //     $socket = socket_create(AF_INET, SOCK_STREAM, 0) or die ("Erreur de creation du socket");
-                        //     // connexion au serveur
-                        //     $resultat = socket_connect($socket, $host, $port) or die ("Erreur de connexion au serveur");
-                        //     // ecriture au serveur
-                        //     socket_write($socket, $message, strlen($message)) or die ("Erreur d'ecriture au serveur");
-                        //     // lecture de la reponse du serveur
-                        //     $resultat = socket_read($socket, 1024) or die ("Erreur de lecture de la reponse du serveur");
-                        //     echo " => ".$resultat."\n";
-                        //     // fermeture du socket
-                        //     socket_close($socket);
-                        // }
                         if(array_key_exists('button1', $_POST)) {
-                            open_ppt("192.168.0.160", "C:\\Users\\conta\\Desktop\\site\\presentation.pptx");
+                            open_ppt("192.168.56.1", "C:\\Users\\conta\\Desktop\\site\\presentation.pptx");
                         }
                         else if(array_key_exists('button2', $_POST)) {
                             open_ppt("192.168.0.157", "C:\\dev\\test.pptx");
@@ -213,23 +202,17 @@
                             </option>
                             <?php endwhile; ?>
                         </select>
-                        <input type="submit" id="submit_session" value="Let's Go !">
+                        
+                        <input type="submit" id="submit_session" value="Let's Go !" name="bouton_letsgo">
                     </form>
                     <?php endif;?>
                 </div>
             </div>
         </form>
     </div>
-    <?php
-        $session_cad = $cadenas_session;
-        if(isset($_POST['session'])) {
-            $session_cad = $_POST['session'];
-        }
-    ?>
-    <a href="lock.php?<?=$session_cad;?>"
-        style="padding: 2px;background-color:#fff;border-radius:25%; position:fixed; top:10px; right:10px; width: 20px;height: 20px; z-index: 9;">
-        <img style="position:fixed; top:12px; right:12px; width: 20px;height: 20px; z-index: 10;"
-            src="images/<?=$cadenas_properties;?>" />
+    <!-- Cadenas de la page pour lock -->
+    <a href="lock.php?lock=<?=$cadenas_status;?>&session=<?=$session_de_base;?>" style="padding: 2px;background-color:#fff;border-radius:25%; position:fixed; top:10px; right:10px; width: 20px;height: 20px; z-index: 9;">
+        <img style="position:fixed; top:12px; right:12px; width: 20px;height: 20px; z-index: 10;" src="images/<?=$cadenas_properties;?>" />
     </a>
 </body>
 

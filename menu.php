@@ -30,14 +30,19 @@
 <body class="">
     <div id="forms">
         <form id="" action="" enctype="multipart/form-data" method="post" class="form-example">
-            
+            <?php
+                // On vient prendre la session avec le plus grand ID pour l'afficher direct quand on clique sur le bouton presentation
+                // Permet d'éviter la page vide
+                require 'Controller/PHP/requetesSQL.php';
+                $id_max_session = idMaxSession();
+            ?>
             <div id="big_box_unlock">
                 
                 <ul id="presta_box">
                     <div id="medium_box">
                             <div class="boite_à_liens">
                                 <button>
-                                    <a href="presentations.php" id="menu_lien">PRESENTATIONS</a>
+                                    <a href="presentations.php?lock=1&session=<?=$id_max_session?>" id="menu_lien">PRESENTATIONS</a>
                                 </button>
                                 <button>
                                     <a href="AjouteurDePresentations.php" id="menu_lien">AJOUTER UNE PRESENTATION</a>

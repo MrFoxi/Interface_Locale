@@ -66,9 +66,9 @@
         $ancien_nom_session = titreSession_Id($num_session);
         $nom_prenom_intervenant = nomPrenomTpIntervenant_Id($num_intervenant);
 
-         /**
+        /**
          CHEMIN DE PRELEVEMENT DU FICHIER
-         */
+        */
         //chemin d'accès au fichier à supprimer avec le unlink plus bas
         $chemin_prelevement = "C:/wamp64/www/InterfaceLocale/Jour/$nom_jour/$nom_salle/$ancien_nom_session/$token[1]";
 
@@ -84,7 +84,7 @@
         move_uploaded_file($tmpName, $chemin_rangement);
         updateDocumentTitreDescAncienNomTdNumIntNumS_Id($titre, $description, $fichier, $juste_token.'.'.$extension, $intervenant, $session, $id);
         // echo "La base de données a été mise à jour";
-        header("location: ./Presentations.php");
+        header("location: ./Presentations.php?lock=1&session=$session");
         
         //on va chercher la liste des intervenants et des sessions
         $intervenant_stmt = nomPrenomIdIntervenant();

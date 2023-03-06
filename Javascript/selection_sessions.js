@@ -20,7 +20,7 @@ window.onload = () => {
         window.location.href = url;
     }
     
-    //On va chercher l'url et le plsit pour retirer le jour
+    //On va chercher l'url et le split pour retirer le jour
     function separation () {
 
         url = window.location.href;

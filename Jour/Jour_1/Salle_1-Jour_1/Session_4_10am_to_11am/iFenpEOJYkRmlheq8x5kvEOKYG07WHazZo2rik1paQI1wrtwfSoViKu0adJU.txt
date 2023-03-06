@@ -1,0 +1,20 @@
+Compte Rendu du 8Fev23
+
+Cadenas : 
+- ajouter un mot de passe pour pouvoir sécuriser le bordel (uniquement quand on veut passer de "lock" à "unlock")
+
+.pptx :
+- nom du fichier pas vraiment utile ??
+- troublant, peut mener à confusion pour les cons
+
+Pages : 
+- regrouper les informations au même endroit
+- pouvoir ajouter un intervenant via la page d'ajout des presentations
+- pouvoir CRUD des intervenants (visualiser, ajouter, supprimer, modifier), surtout afficher la listes des intervenants
+- faire afficher les dates des jours (modifier le nom des jours, salles, sessions) (genre via un double clique)
+
+Salles : 
+- trier les salles dans l'ordre croissant (pages session)
+
+LE LANCEMENT DES POWERPOINTS SE FERA DEPUIS UN LANCEUR DETACHÉ DE LA PLATEFORME ACTUELLE
+

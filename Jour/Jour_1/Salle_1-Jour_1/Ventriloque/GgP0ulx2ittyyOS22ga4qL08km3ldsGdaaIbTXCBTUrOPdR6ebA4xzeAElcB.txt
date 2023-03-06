@@ -7,14 +7,8 @@
     --jaune :#fad91e;
     --blanc_casse : 245, 245, 250;
 
-    /* C'est le bleu et le rose
-       Secondaire = rose
-       Primaire = bleu
-    */
     --primaire : 20, 220, 250;
     --secondaire : 255, 180, 255;
-    /* --primaire : 0, 0, 0;
-    --secondaire : 23,56,100; */
 }
 html, body{
     min-width: 100px;
@@ -213,7 +207,7 @@ textarea.text{
     font-size: 1em;
 }
 #input_title{
-    width: 16rem;
+    width: 8rem;
     height: 2.54em;
     border: none;
     border-radius: none;
@@ -626,6 +620,105 @@ body.hovered{
     box-shadow: inset 10px 10px 10px rgba(0,0,0,0.1),
     -10px -10px 10px rgba(255,255,255,0.6);;
 }
+/*fenetre pop up*/
+#modal{
+    background-color: black;
+}
+.modal{
+    position: fixed;
+    /*pour la mettre au milieu de l'écran*/
+    top: 50%;
+    left:50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: 0.2s ease-in-out;
+    background-color: white;
+    border-radius: 5px;
+    z-index: 10;
+    height: 600px;
+    width: 400px;
+}
+.modal-body{
+    display: flex;
+    justify-content: center;
+    min-height: 70%;
+}
+.modal.active{
+    transform: translate(-50%, -50%) scale(1);
+
+}
+/* Changement de couleurs du bg au niveau du header de la pop up
+@keyframes colors{
+    0%   { background: var(--bleu); }
+    33%  { background: var(--rouge); }
+    66%  { background: var(--jaune); }
+    100%  { background: var(--bleu); }
+}*/
+.modal-header{
+    background-color: var(--bleu);
+    animation: colors 10s infinite linear;
+    padding: 10px 15px;
+    border-radius: 5px 5px 0px 0px;
+    display: flex;
+}
+.modal-header > h2{
+    text-align: center;
+    padding-left: 10px;
+}
+.modal-header .close-button{
+    padding: 0.8rem;
+    width: 30px;
+    cursor: pointer;
+    border:none;
+    outline:none;
+    background: none;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+.modal-body{
+    padding: 10px 15px;
+    background-color: black;
+}
+#overlay{
+    position:fixed;
+    opacity: 0;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-color:rgb(24, 46, 191, .5);
+    pointer-events:none;
+}
+#overlay.active{
+    opacity: 1;
+    pointer-events:all;
+    z-index: 2;
+}
+.giphy-embed{
+    align-self: center;
+    pointer-events:none;
+}
+#fleche{
+    position: absolute;
+    bottom: 0px;
+    border-radius: 6px;
+    transform: rotateZ(90deg);
+    animation: sauter 1.3s infinite;
+
+}
+
+@keyframes sauter {
+    0%{
+        transform: translateY(-1rem) rotateZ(90deg);
+    }
+    50%{
+        transform: translateY(-4rem) rotateZ(90deg);
+    }
+    100%{
+        transform: translateY(-1rem) rotateZ(90deg);
+    }
+}
+
+
 #Selection_Boutons_Session {
     width: 85%;
     height: 2rem;

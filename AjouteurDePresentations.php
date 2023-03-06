@@ -130,7 +130,7 @@
                 $req = $pdo ->prepare("INSERT INTO document SET titre = ?, description =  ?,AncienNom = ?, token_document = ?, num_intervenant = ?, num_session = ?, created_at = ?");
                 //faut mettre un tableau en params (1 argument seulement accepté)
                 $req->execute([$_POST['title'], $_POST['text_area'], $name, $lien, $_POST['intervenant'], $_POST['session'], date("Y-m-d H:i:s")]);
-                header("location: ./Presentations.php");
+                header("location: ./Presentations.php?lock=1&session=$_POST[session]");
             }
         }
     ?>

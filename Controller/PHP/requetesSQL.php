@@ -125,10 +125,16 @@
         $req->execute();
         return $req->fetchColumn();
     }
-    function dernierId(){
+    function countId_Session($id_session){
         global $pdo;
-        $req = $pdo->prepare('SELECT min(id) FROM document');
-        $req->execute();
+        $req = $pdo->prepare('SELECT count(id) FROM document WHERE num_session = ?');
+        $req->execute([$id_session]);
+        return $req->fetchColumn();
+    }
+    function dernierId($num_session){
+        global $pdo;
+        $req = $pdo->prepare('SELECT min(id) FROM document WHERE num_session = ?');
+        $req->execute([$num_session]);
         return $req->fetch();
     }
     function tdatokenDocument_Id($iterateur){
@@ -184,6 +190,12 @@
         $req = $pdo->prepare("SELECT id, titre FROM session");
         $req->execute();
         return $req->fetchAll(PDO::FETCH_ASSOC);
+    }
+    function idMaxSession(){
+        global $pdo;
+        $req = $pdo->prepare("SELECT max(id) FROM session");
+        $req->execute();
+        return $req->fetchColumn();
     }
     /**
      * 
